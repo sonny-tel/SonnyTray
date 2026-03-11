@@ -12,7 +12,12 @@
     <AssemblyTitle>SonnyTray</AssemblyTitle>
     <Product>SonnyTray</Product>
     <Description>Modern Tailscale tray application</Description>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.3.4" />

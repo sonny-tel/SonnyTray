@@ -10,6 +10,7 @@
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
         Title="SonnyTray"
+        Icon="Assets/icon.ico"
         Width="440" Height="740"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -24,6 +25,7 @@
         <conv:ConnectionStateBrushConverter x:Key="StateBrush"/>
         <conv:BackendStateToTextConverter x:Key="StateText"/>
         <conv:OnlineStatusBrushConverter x:Key="OnlineBrush"/>
+        <conv:StringToImageSourceConverter x:Key="StringToImage"/>
     </Window.Resources>
 
     <!-- Flyout shell -->
@@ -91,7 +93,7 @@
                                 Background="{DynamicResource SurfaceBrush}">
                             <Border CornerRadius="14">
                                 <Border.Background>
-                                    <ImageBrush ImageSource="{Binding ProfileManager.ProfilePicUrl}"
+                                    <ImageBrush ImageSource="{Binding ProfileManager.ProfilePicUrl, Converter={StaticResource StringToImage}}"
                                                 Stretch="UniformToFill"/>
                                 </Border.Background>
                             </Border>

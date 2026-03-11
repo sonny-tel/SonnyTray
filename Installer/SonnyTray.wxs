@@ -28,7 +28,8 @@
                   Name="SonnyTray"
                   Description="Modern Tailscale tray application"
                   Target="[INSTALLFOLDER]SonnyTray.exe"
-                  WorkingDirectory="INSTALLFOLDER" />
+                  WorkingDirectory="INSTALLFOLDER"
+                  Icon="AppIcon" />
         <RemoveFolder Id="CleanStartMenu" On="uninstall" />
         <RegistryValue Root="HKCU" Key="Software\SonnyTray" Name="installed" Type="integer" Value="1" KeyPath="yes" />
       </Component>
@@ -43,6 +44,8 @@
                      Value="&quot;[INSTALLFOLDER]SonnyTray.exe&quot;"
                      KeyPath="yes" />
     </Component>
+
+    <Icon Id="AppIcon" SourceFile="$(var.PublishDir)\SonnyTray.exe" />
 
     <Feature Id="ProductFeature" Title="SonnyTray" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
