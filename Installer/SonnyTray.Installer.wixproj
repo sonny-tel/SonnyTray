@@ -1,0 +1,15 @@
+<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <PropertyGroup>
+    <OutputType>Package</OutputType>
+    <!-- Version passed from CI; default for local builds -->
+    <Version>0.0.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Point to the published output -->
+    <PublishDir Condition="'$(PublishDir)' == ''">$(MSBuildThisFileDirectory)..\publish\</PublishDir>
+    <DefineConstants>Version=$(Version);PublishDir=$(PublishDir)</DefineConstants>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SonnyTray.csproj" />
+  <Project Path="Installer/SonnyTray.Installer.wixproj" />
+</Solution>

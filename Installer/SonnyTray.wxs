@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+
+  <Package Name="SonnyTray"
+           Manufacturer="SonnyTray"
+           Version="$(var.Version)"
+           UpgradeCode="3F8A7C2E-5D91-4B6A-A8E0-1C2D3E4F5678"
+           Scope="perUser"
+           InstallerVersion="500">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of SonnyTray is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="INSTALLFOLDER" Name="SonnyTray">
+        <!-- Files harvested by HeatWave or listed explicitly -->
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Files Include="$(var.PublishDir)\**" />
+    </ComponentGroup>
+
+    <!-- Start Menu shortcut -->
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Component Id="StartMenuShortcut">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="SonnyTray"
+                  Description="Modern Tailscale tray application"
+                  Target="[INSTALLFOLDER]SonnyTray.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="CleanStartMenu" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\SonnyTray" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </StandardDirectory>
+
+    <!-- Startup registry entry -->
+    <Component Id="StartupEntry" Directory="INSTALLFOLDER">
+      <RegistryValue Root="HKCU"
+                     Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+                     Name="SonnyTray"
+                     Type="string"
+                     Value="&quot;[INSTALLFOLDER]SonnyTray.exe&quot;"
+                     KeyPath="yes" />
+    </Component>
+
+    <Feature Id="ProductFeature" Title="SonnyTray" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="StartupEntry" />
+    </Feature>
+
+  </Package>
+</Wix>

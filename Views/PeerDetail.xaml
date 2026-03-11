@@ -1,0 +1,365 @@
+<UserControl x:Class="SonnyTray.Views.PeerDetail"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:SonnyTray.ViewModels"
+             xmlns:conv="clr-namespace:SonnyTray.Converters"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance vm:PeerDetailViewModel}">
+
+    <UserControl.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Border Background="Transparent"
+            BorderBrush="{DynamicResource CardStrokeBrush}"
+            BorderThickness="0,1"
+            Padding="0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
+            <StackPanel Margin="14,8,14,12">
+
+                <!-- ── Header: back + name ── -->
+                <DockPanel Margin="0,0,0,8">
+                    <Button DockPanel.Dock="Left"
+                            Style="{DynamicResource PopoutButton}"
+                            Padding="4,4"
+                            Click="OnBackClick"
+                            ToolTip="Back to devices">
+                        <TextBlock Text="&#xE72B;"
+                                   FontFamily="{DynamicResource IconFont}"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </Button>
+                    <StackPanel VerticalAlignment="Center" Margin="8,0,0,0">
+                        <TextBlock Text="{Binding Peer.DisplayName}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   FontFamily="{DynamicResource BodyFont}"
+                                   FontSize="15" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                     VerticalAlignment="Center">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#9A9A9A"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Peer.IsOnline}" Value="True">
+                                                <Setter Property="Fill" Value="#6CCB5F"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="11">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Offline"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Peer.IsOnline}" Value="True">
+                                                <Setter Property="Text" Value="Online"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding Peer.OS, StringFormat=' · {0}'}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </DockPanel>
+
+                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,4"/>
+
+                <!-- ── Network Info ── -->
+                <TextBlock Text="NETWORK"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           FontFamily="{DynamicResource BodyFont}"
+                           FontSize="10" FontWeight="SemiBold"
+                           Margin="0,8,0,6"/>
+
+                <!-- IPv4 -->
+                <DockPanel Margin="0,2">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.IP}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="IPv4" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.IP, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- IPv6 -->
+                <DockPanel Margin="0,2"
+                           Visibility="{Binding Peer.HasIPv6, Converter={StaticResource BoolToVis}}">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.IPv6}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="IPv6" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.IPv6, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- DNS Name -->
+                <DockPanel Margin="0,2">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.DNSName}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="FQDN" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.DNSName, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Hostname -->
+                <DockPanel Margin="0,2">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.HostName}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Host" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.HostName, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Connection via -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Via" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.ConnectionType, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Relay -->
+                <DockPanel Margin="0,2"
+                           Visibility="{Binding Peer.HasRelay, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Relay" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.Relay, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Current endpoint -->
+                <DockPanel Margin="0,2"
+                           Visibility="{Binding Peer.IsDirect, Converter={StaticResource BoolToVis}}">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.CurAddr}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Endpoint" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.CurAddr, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,8"/>
+
+                <!-- ── Details ── -->
+                <TextBlock Text="DETAILS"
+                           Foreground="{DynamicResource TextTertiaryBrush}"
+                           FontFamily="{DynamicResource BodyFont}"
+                           FontSize="10" FontWeight="SemiBold"
+                           Margin="0,4,0,6"/>
+
+                <!-- Tags -->
+                <DockPanel Margin="0,2"
+                           Visibility="{Binding Peer.HasTags, Converter={StaticResource BoolToVis}}">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Tags" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.TagsDisplay, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Exit Node -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Exit Node" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.IsExitNode, Mode=OneWay, StringFormat='{}{0}'}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Can be Exit Node -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Offers Exit" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.ExitNodeOption, Mode=OneWay, StringFormat='{}{0}'}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Traffic -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Rx" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.RxDisplay, Mode=OneWay}"/>
+                        <Run Text="  "/>
+                        <Run Text="Tx" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.TxDisplay, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Key (truncated) -->
+                <DockPanel Margin="0,2">
+                    <Button DockPanel.Dock="Right" Style="{DynamicResource PopoutButton}"
+                            Command="{Binding CopyFieldCommand}"
+                            CommandParameter="{Binding Peer.PublicKey}"
+                            Padding="4,2" ToolTip="Copy">
+                        <TextBlock Text="&#xE8C8;" FontFamily="{DynamicResource IconFont}"
+                                   FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </Button>
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                               TextTrimming="CharacterEllipsis">
+                        <Run Text="Key" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.PublicKey, Mode=OneWay}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <!-- Created / Last Seen -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Created" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.Created, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
+                    </TextBlock>
+                </DockPanel>
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Last Seen" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Text="{Binding Peer.LastSeen, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
+                    </TextBlock>
+                </DockPanel>
+
+                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,8"/>
+
+                <!-- ── Ping ── -->
+                <DockPanel Margin="0,4,0,6">
+                    <Button DockPanel.Dock="Right"
+                            Style="{DynamicResource PopoutButton}"
+                            Command="{Binding TogglePingCommand}"
+                            Padding="8,4" Margin="4,0,0,0">
+                        <TextBlock FontFamily="{DynamicResource BodyFont}" FontSize="11">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Start Ping"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPinging}" Value="True">
+                                            <Setter Property="Text" Value="Stop"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Button>
+                    <TextBlock Text="PING"
+                               Foreground="{DynamicResource TextTertiaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}"
+                               FontSize="10" FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                </DockPanel>
+
+                <!-- Ping status line -->
+                <TextBlock Text="{Binding PingStatus}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                           Margin="0,0,0,4"/>
+
+                <!-- Ping stats -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
+                            Visibility="{Binding PingCount, Converter={StaticResource BoolToVis}}">
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="AVG" Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
+                            <TextBlock Text="{Binding AvgLatencyMs, StringFormat='{}{0:F1}ms'}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="MIN" Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
+                            <TextBlock Text="{Binding MinLatencyMs, StringFormat='{}{0:F1}ms'}"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                        <StackPanel>
+                            <TextBlock Text="MAX" Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
+                            <TextBlock Text="{Binding MaxLatencyMs, StringFormat='{}{0:F1}ms'}"
+                                       Foreground="#FF99A4"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4">
+                        <StackPanel>
+                            <TextBlock Text="VIA" Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
+                            <TextBlock Text="{Binding LastConnectionType}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Ping graph -->
+                <Border Background="{DynamicResource CardBrush}" CornerRadius="6"
+                        Padding="4" Height="120"
+                        Visibility="{Binding PingCount, Converter={StaticResource BoolToVis}}">
+                    <Canvas x:Name="PingCanvas" ClipToBounds="True" SizeChanged="OnCanvasSizeChanged"/>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>
