@@ -604,23 +604,28 @@ public partial class App : Application
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         g.Clear(Color.Transparent);
 
-        // Left column of dots
         using var brush = new SolidBrush(Color.White);
-        foreach (var i in new[] { 0, 1, 2 })
-        {
-            var (x, y) = DotCenters[i];
+        foreach (var (x, y) in DotCenters)
             g.FillEllipse(brush, x - 3, y - 3, 6, 6);
-        }
 
-        // Right-pointing arrow (traffic routing indicator)
-        using var pen = new Pen(Color.White, 2.5f)
+        using var outlinePen = new Pen(Color.FromArgb(30, 30, 30), 5.5f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+            LineJoin = System.Drawing.Drawing2D.LineJoin.Round,
+        };
+        g.DrawLine(outlinePen, 16, 22, 30, 22);
+        g.DrawLine(outlinePen, 24, 16, 31, 22);
+        g.DrawLine(outlinePen, 24, 28, 31, 22);
+
+        using var pen = new Pen(Color.White, 2.8f)
         {
             StartCap = System.Drawing.Drawing2D.LineCap.Round,
             EndCap = System.Drawing.Drawing2D.LineCap.Round,
         };
-        g.DrawLine(pen, 15, 16, 27, 16);  // shaft
-        g.DrawLine(pen, 22, 10, 28, 16);  // arrowhead top
-        g.DrawLine(pen, 22, 22, 28, 16);  // arrowhead bottom
+        g.DrawLine(pen, 16, 22, 30, 22);
+        g.DrawLine(pen, 24, 16, 31, 22);
+        g.DrawLine(pen, 24, 28, 31, 22);
 
         return bmp;
     }
