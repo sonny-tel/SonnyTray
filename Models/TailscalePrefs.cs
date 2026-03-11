@@ -91,6 +91,12 @@ public sealed class MaskedPrefs
     [JsonPropertyName("ForceDaemonSet")]
     public bool ForceDaemonSet { get; set; }
 
+    [JsonPropertyName("AdvertiseRoutes")]
+    public List<string>? AdvertiseRoutes { get; set; }
+
+    [JsonPropertyName("AdvertiseRoutesSet")]
+    public bool AdvertiseRoutesSet { get; set; }
+
     [JsonPropertyName("AutoUpdate")]
     public AutoUpdatePrefs? AutoUpdate { get; set; }
 

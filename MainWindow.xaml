@@ -710,6 +710,18 @@
                                        VerticalAlignment="Center"/>
                         </DockPanel>
 
+                        <!-- Allow local network access -->
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.AllowLANAccess}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Allow LAN access"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
                         <!-- Auto update -->
                         <DockPanel Margin="8,4">
                             <local:FluentToggleButton DockPanel.Dock="Right"

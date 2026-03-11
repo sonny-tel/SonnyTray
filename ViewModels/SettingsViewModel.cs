@@ -22,6 +22,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _autoUpdate;
     [ObservableProperty] private bool _runUnattended;
     [ObservableProperty] private bool _runAtStartup;
+    [ObservableProperty] private bool _advertiseExitNode;
+    [ObservableProperty] private bool _allowLANAccess;
+    private List<string> _otherRoutes = [];
 
     // TailDrive
     [ObservableProperty] private bool _showAddShare;
@@ -59,6 +62,11 @@ public partial class SettingsViewModel : ObservableObject
             AutoUpdate = prefs.AutoUpdate?.Check ?? false;
             RunUnattended = prefs.ForceDaemon;
             RunAtStartup = IsStartupEnabled();
+            AllowLANAccess = prefs.ExitNodeAllowLANAccess;
+
+            var routes = prefs.AdvertiseRoutes ?? [];
+            AdvertiseExitNode = routes.Contains("0.0.0.0/0") && routes.Contains("::/0");
+            _otherRoutes = routes.Where(r => r is not "0.0.0.0/0" and not "::/0").ToList();
             await RefreshDriveSharesAsync();
             await RefreshMountedDrivesAsync();
             RefreshFileSizeLimit();
@@ -111,6 +119,24 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (_loading) return;
         SetStartupEnabled(value);
+    }
+
+    partial void OnAdvertiseExitNodeChanged(bool value)
+    {
+        if (_loading) return;
+        var routes = new List<string>(_otherRoutes);
+        if (value)
+        {
+            routes.Add("0.0.0.0/0");
+            routes.Add("::/0");
+        }
+        _ = SetPrefAsync(new MaskedPrefs { AdvertiseRoutes = routes, AdvertiseRoutesSet = true });
+    }
+
+    partial void OnAllowLANAccessChanged(bool value)
+    {
+        if (_loading) return;
+        _ = SetPrefAsync(new MaskedPrefs { ExitNodeAllowLANAccess = value, ExitNodeAllowLANAccessSet = true });
     }
 
     private static bool IsStartupEnabled()

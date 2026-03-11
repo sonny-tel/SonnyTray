@@ -23,6 +23,7 @@ public partial class App : Application
     private MenuItem? _connectMenuItem;
     private MenuItem? _loginMenuItem;
     private MenuItem? _exitNodeMenuItem;
+    private MenuItem? _runAsExitNodeItem;
     private MenuItem? _ipMenuItem;
     private MenuItem? _copyIPv4Item;
     private MenuItem? _copyIPv6Item;
@@ -155,6 +156,13 @@ public partial class App : Application
             ShowPopout();
         };
 
+        _runAsExitNodeItem = new MenuItem { Header = "Run exit node", Icon = MenuIcon("\uE8AB") };
+        _runAsExitNodeItem.Click += (_, _) =>
+        {
+            if (_mainVm is not null)
+                _mainVm.Settings.AdvertiseExitNode = !_mainVm.Settings.AdvertiseExitNode;
+        };
+
         _ipMenuItem = new MenuItem { Header = "Copy", Icon = MenuIcon("\uE8C8") };
         _copyIPv4Item = new MenuItem { Header = "IPv4" };
         _copyIPv4Item.Click += (_, _) => CopyToClipboard(_mainVm?.SelfIP);
@@ -203,6 +211,7 @@ public partial class App : Application
         menu.Items.Add(_adminConsoleMenuItem);
         menu.Items.Add(_connectMenuItem);
         menu.Items.Add(_exitNodeMenuItem);
+        menu.Items.Add(_runAsExitNodeItem);
         menu.Items.Add(new Separator { Style = FindResource("MenuSeparator") as Style });
         menu.Items.Add(_ipMenuItem);
         var settingsItem = new MenuItem { Header = "Settings", Icon = MenuIcon("\uE713") };
@@ -359,6 +368,13 @@ public partial class App : Application
             {
                 _exitNodeMenuItem.Header = $"Exit Node: {name}";
             }
+        }
+
+        if (_runAsExitNodeItem is not null)
+        {
+            var isExitNode = _mainVm.Settings.AdvertiseExitNode;
+            _runAsExitNodeItem.Header = isExitNode ? "Stop running exit node" : "Run exit node";
+            _runAsExitNodeItem.FontWeight = isExitNode ? FontWeights.SemiBold : FontWeights.Normal;
         }
 
         if (_ipMenuItem is not null && _mainVm is not null)

@@ -6,6 +6,7 @@
              xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
              xmlns:vm="clr-namespace:SonnyTray.ViewModels"
              xmlns:conv="clr-namespace:SonnyTray.Converters"
+             xmlns:local="clr-namespace:SonnyTray"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance vm:ExitNodePickerViewModel}">
 
@@ -46,6 +47,18 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
+                    <DockPanel Margin="12,6,12,2">
+                        <local:FluentToggleButton DockPanel.Dock="Right"
+                                      Style="{DynamicResource FluentToggle}"
+                                      IsChecked="{Binding DataContext.Settings.AdvertiseExitNode, RelativeSource={RelativeSource AncestorType=Window}}"
+                                      VerticalAlignment="Center"/>
+                        <TextBlock Text="Run exit node"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                   VerticalAlignment="Center"/>
+                    </DockPanel>
+                    <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="4,6"/>
+
                     <!-- Suggested exit node -->
                     <StackPanel Visibility="{Binding SuggestedNode, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="SUGGESTED"
@@ -413,6 +426,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
+
                 </StackPanel>
         </DockPanel>
     </Border>
