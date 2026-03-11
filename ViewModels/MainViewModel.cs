@@ -89,8 +89,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             await TailscaleClient.EnsureDaemonRunningAsync();
-            await RefreshStatusAsync();
             await ProfileManager.RefreshProfilesAsync();
+            await RefreshStatusAsync();
             await Settings.LoadFromPrefsAsync();
             _ = WatchBusAsync();
         }
@@ -131,10 +131,29 @@ public partial class MainViewModel : ObservableObject, IDisposable
             SelfIP = self.TailscaleIPs?.FirstOrDefault() ?? "";
             SelfIPv6 = self.TailscaleIPs?.Skip(1).FirstOrDefault() ?? "";
             SelfDNSName = self.DNSName.TrimEnd('.');
-        }
 
-        // Determine login user from profile
-        LoginUserName = ProfileManager.CurrentProfile?.UserProfile?.LoginName ?? "";
+            // Use the live User map from status for profile info (profiles/current can be stale)
+            if (status.User is not null
+                && status.User.TryGetValue(self.UserID.ToString(), out var selfUser))
+            {
+                if (!string.IsNullOrEmpty(selfUser.ProfilePicURL))
+                    ProfileManager.ProfilePicUrl = selfUser.ProfilePicURL;
+                if (!string.IsNullOrEmpty(selfUser.DisplayName))
+                    ProfileManager.UserDisplayName = selfUser.DisplayName;
+                else if (!string.IsNullOrEmpty(selfUser.LoginName))
+                    ProfileManager.UserDisplayName = selfUser.LoginName;
+                LoginUserName = selfUser.LoginName;
+            }
+            else
+            {
+                LoginUserName = ProfileManager.CurrentProfile?.UserProfile?.LoginName ?? "";
+            }
+        }
+        else
+        {
+            // Determine login user from profile
+            LoginUserName = ProfileManager.CurrentProfile?.UserProfile?.LoginName ?? "";
+        }
 
         // Build peer list hide exit node infrastructure (peers with Location data)
         Peers.Clear();
@@ -266,8 +285,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 {
                     try
                     {
-                        await RefreshStatusAsync();
                         await ProfileManager.RefreshProfilesAsync();
+                        await RefreshStatusAsync();
                     }
                     catch { /* tolerate transient errors during refresh */ }
 
@@ -343,8 +362,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         try
         {
             await _client.LogoutAsync();
-            await RefreshStatusAsync();
             await ProfileManager.RefreshProfilesAsync();
+            await RefreshStatusAsync();
         }
         catch { _busyWait = BusyWait.None; IsBusy = false; }
     }
