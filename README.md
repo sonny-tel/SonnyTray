@@ -4,7 +4,7 @@
 </strong></p>
 
 <p align="center">
-SonnyTray is a custom Tailscale client for Windows that cleans up and improves the absolutely awful unusable stock client, and adds proper support for things not even supported in the official Tailscale application. All in pretty stylish and cool Fluent design.
+SonnyTray is a custom Tailscale client for Windows that cleans up and improves the absolutely awful unusable stock tray, and adds proper support for things not even in the official Tailscale application. All in pretty stylish and cool Fluent design.
 </p>
 
 <p align="center">
