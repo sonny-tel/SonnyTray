@@ -13,7 +13,8 @@ public partial class ProfileManagerViewModel : ObservableObject
 
     [ObservableProperty] private LoginProfile? _currentProfile;
     [ObservableProperty] private bool _showProfilePicker;
-    [ObservableProperty] private bool _showAddServer;
+    [ObservableProperty] private bool _showAddOptions;
+    [ObservableProperty] private bool _showAddCustomServer;
     [ObservableProperty] private string _newServerUrl = "";
     [ObservableProperty] private bool _isAddingServer;
 
@@ -62,7 +63,8 @@ public partial class ProfileManagerViewModel : ObservableObject
     private void ToggleProfilePicker()
     {
         ShowProfilePicker = !ShowProfilePicker;
-        ShowAddServer = false;
+        ShowAddOptions = false;
+        ShowAddCustomServer = false;
     }
 
     [RelayCommand]
@@ -81,6 +83,7 @@ public partial class ProfileManagerViewModel : ObservableObject
 
             await RefreshProfilesAsync();
             await _main.RefreshStatusAsync();
+            await _main.Settings.LoadFromPrefsAsync();
 
             // Restart the IPN bus watcher so it picks up events from the new session
             _main.RestartBusWatcher();
@@ -94,12 +97,41 @@ public partial class ProfileManagerViewModel : ObservableObject
     [RelayCommand]
     private void ShowAddServerView()
     {
-        NewServerUrl = "";
-        ShowAddServer = true;
+        ShowAddOptions = true;
+        ShowAddCustomServer = false;
     }
 
     [RelayCommand]
-    private async Task AddServerAsync()
+    private async Task AddTailscaleAccountAsync()
+    {
+        IsAddingServer = true;
+        _main.SetBusyUntilLoggedIn();
+        try
+        {
+            await TailscaleClient.EnsureDaemonRunningAsync();
+            await _client.CreateProfileAsync();
+            await _client.StartAsync(new IpnOptions());
+            await _client.StartLoginInteractiveAsync();
+            await RefreshProfilesAsync();
+            await _main.RefreshStatusAsync();
+            ShowAddOptions = false;
+            ShowProfilePicker = false;
+        }
+        finally
+        {
+            IsAddingServer = false;
+        }
+    }
+
+    [RelayCommand]
+    private void ShowCustomServerInput()
+    {
+        NewServerUrl = "";
+        ShowAddCustomServer = true;
+    }
+
+    [RelayCommand]
+    private async Task AddCustomServerAsync()
     {
         var url = NewServerUrl.Trim();
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
@@ -119,9 +151,9 @@ public partial class ProfileManagerViewModel : ObservableObject
             await _client.StartLoginInteractiveAsync();
             await RefreshProfilesAsync();
             await _main.RefreshStatusAsync();
-            ShowAddServer = false;
+            ShowAddOptions = false;
+            ShowAddCustomServer = false;
             ShowProfilePicker = false;
-            // IsBusy cleared by bus watcher when BackendState reaches Running/Stopped
         }
         finally
         {
@@ -132,7 +164,8 @@ public partial class ProfileManagerViewModel : ObservableObject
     [RelayCommand]
     private void CancelAddServer()
     {
-        ShowAddServer = false;
+        ShowAddOptions = false;
+        ShowAddCustomServer = false;
     }
 
     [RelayCommand]

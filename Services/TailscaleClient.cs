@@ -185,6 +185,36 @@ public sealed class TailscaleClient : IDisposable
             ?? throw new InvalidOperationException("Null ping response");
     }
 
+    // ---------- TailDrive ----------
+
+    public async Task<DriveShare[]> GetDriveSharesAsync(CancellationToken ct = default)
+    {
+        return await GetJsonAsync<DriveShare[]>("/localapi/v0/drive/shares", ct);
+    }
+
+    public async Task AddDriveShareAsync(DriveShare share, CancellationToken ct = default)
+    {
+        var response = await _http.PutAsJsonAsync("/localapi/v0/drive/shares", share, ct);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task RemoveDriveShareAsync(string name, CancellationToken ct = default)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete, "/localapi/v0/drive/shares")
+        {
+            Content = new StringContent(name)
+        };
+        var response = await _http.SendAsync(request, ct);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task RenameDriveShareAsync(string oldName, string newName, CancellationToken ct = default)
+    {
+        var response = await _http.PostAsJsonAsync("/localapi/v0/drive/shares",
+            new[] { oldName, newName }, ct);
+        response.EnsureSuccessStatusCode();
+    }
+
     // ---------- Helpers ----------
 
     private async Task<T> GetJsonAsync<T>(string path, CancellationToken ct)

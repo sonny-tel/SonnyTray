@@ -7,8 +7,7 @@
              xmlns:vm="clr-namespace:SonnyTray.ViewModels"
              xmlns:conv="clr-namespace:SonnyTray.Converters"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:ExitNodePickerViewModel}"
-             MaxHeight="500">
+             d:DataContext="{d:DesignInstance vm:ExitNodePickerViewModel}">
 
     <UserControl.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
@@ -36,9 +35,9 @@
                        Margin="0,24,0,24"
                        Visibility="{Binding IsLoadingNodes, Converter={StaticResource BoolToVis}}"/>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ScrollViewer.Style>
-                    <Style TargetType="ScrollViewer">
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
                         <Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsLoadingNodes}" Value="True">
@@ -46,8 +45,7 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </ScrollViewer.Style>
-                <StackPanel>
+                </StackPanel.Style>
                     <!-- Suggested exit node -->
                     <StackPanel Visibility="{Binding SuggestedNode, Converter={StaticResource BoolToVis}}">
                         <TextBlock Text="SUGGESTED"
@@ -416,7 +414,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
-            </ScrollViewer>
         </DockPanel>
     </Border>
 </UserControl>

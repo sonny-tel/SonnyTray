@@ -10,7 +10,7 @@
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         mc:Ignorable="d"
         Title="SonnyTray"
-        Width="420" Height="680"
+        Width="440" Height="740"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -123,39 +123,186 @@
                 </Button>
                 </DockPanel>
 
+                <!-- ── Sticky Exit Node header ── -->
+                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"
+                        x:Name="StickyExitNodeDivider" Visibility="Collapsed"/>
+                <Button DockPanel.Dock="Top"
+                        x:Name="StickyExitNodeHeader" Visibility="Collapsed"
+                        Style="{DynamicResource PopoutButton}"
+                        Command="{Binding ToggleExitNodePickerCommand}"
+                        HorizontalContentAlignment="Stretch"
+                        Padding="14,10">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="&#xE70D;"
+                                   FontFamily="{DynamicResource IconFont}" FontSize="10"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform Angle="180"/>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                        <StackPanel>
+                            <TextBlock Text="Exit Node"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="11"/>
+                            <StackPanel Orientation="Horizontal">
+                                <emoji:TextBlock Text="{Binding CurrentExitNodeFlag}"
+                                                 FontSize="14" VerticalAlignment="Center"
+                                                 Margin="0,0,6,0"
+                                                 Visibility="{Binding HasExitNodeFlag, Converter={StaticResource BoolToVis}}"/>
+                                <TextBlock Text="{Binding CurrentExitNodeName}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </DockPanel>
+                </Button>
+
+                <!-- ── Sticky Settings header ── -->
+                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"
+                        x:Name="StickySettingsDivider" Visibility="Collapsed"/>
+                <Button DockPanel.Dock="Top"
+                        x:Name="StickySettingsHeader" Visibility="Collapsed"
+                        Style="{DynamicResource PopoutButton}"
+                        Command="{Binding ToggleSettingsCommand}"
+                        HorizontalContentAlignment="Stretch"
+                        Padding="14,10">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Right"
+                                   Text="&#xE70D;"
+                                   FontFamily="{DynamicResource IconFont}" FontSize="10"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center"
+                                   RenderTransformOrigin="0.5,0.5">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform Angle="180"/>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE713;"
+                                       FontFamily="{DynamicResource IconFont}" FontSize="14"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="Settings"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="13"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Button>
+
+                <!-- ── Scrollable content ── -->
+                <ScrollViewer x:Name="ContentScroll" VerticalScrollBarVisibility="Auto"
+                              ScrollChanged="OnContentScrollChanged">
+                <StackPanel>
+
                 <!-- ── Profile picker dropdown ── -->
-                <Border DockPanel.Dock="Top"
-                        Visibility="{Binding ProfileManager.ShowProfilePicker, Converter={StaticResource BoolToVis}}"
+                <Border Visibility="{Binding ProfileManager.ShowProfilePicker, Converter={StaticResource BoolToVis}}"
                         Background="Transparent"
                         BorderBrush="{DynamicResource CardStrokeBrush}"
                         BorderThickness="0,1"
                         Padding="4,4">
                     <StackPanel>
-                        <!-- Add Server sub-view -->
-                        <StackPanel Visibility="{Binding ProfileManager.ShowAddServer, Converter={StaticResource BoolToVis}}"
+                        <!-- Add options view -->
+                        <StackPanel Visibility="{Binding ProfileManager.ShowAddOptions, Converter={StaticResource BoolToVis}}"
                                     Margin="8">
-                            <TextBlock Text="Add Server"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       FontFamily="{DynamicResource BodyFont}"
-                                       FontWeight="SemiBold" FontSize="13"
-                                       Margin="0,0,0,8"/>
-                            <TextBox Text="{Binding ProfileManager.NewServerUrl, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{DynamicResource SearchTextBox}"
-                                     Margin="0,0,0,8"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="Cancel"
+                            <DockPanel Margin="0,0,0,8">
+                                <Button DockPanel.Dock="Right"
+                                        Content="&#xE711;"
+                                        FontFamily="{DynamicResource IconFont}"
+                                        FontSize="10"
                                         Style="{DynamicResource PopoutButton}"
                                         Command="{Binding ProfileManager.CancelAddServerCommand}"
-                                        Margin="0,0,4,0"/>
-                                <Button Content="Connect"
-                                        Style="{DynamicResource AccentButton}"
-                                        Command="{Binding ProfileManager.AddServerCommand}"/>
+                                        VerticalAlignment="Center"
+                                        Padding="4,2"/>
+                                <TextBlock Text="Add account"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}"
+                                           FontWeight="SemiBold" FontSize="13"
+                                           VerticalAlignment="Center"/>
+                            </DockPanel>
+
+                            <!-- Add Tailscale account button -->
+                            <Button Style="{DynamicResource PopoutButton}"
+                                    Command="{Binding ProfileManager.AddTailscaleAccountCommand}"
+                                    Padding="10,8" Margin="0,0,0,4"
+                                    HorizontalContentAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE8FA;"
+                                               FontFamily="{DynamicResource IconFont}"
+                                               FontSize="14"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Tailscale account"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Sign in with a different account or tailnet"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}"
+                                                   FontSize="11"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Custom server (Headscale) expandable section -->
+                            <Button Style="{DynamicResource PopoutButton}"
+                                    Command="{Binding ProfileManager.ShowCustomServerInputCommand}"
+                                    Padding="10,8" Margin="0,0,0,4"
+                                    HorizontalContentAlignment="Left"
+                                    Visibility="{Binding ProfileManager.ShowAddCustomServer, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE968;"
+                                               FontFamily="{DynamicResource IconFont}"
+                                               FontSize="14"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="Other server"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}"
+                                                   FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Headscale or custom control server"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}"
+                                                   FontSize="11"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Custom server URL input (shown when expanded) -->
+                            <StackPanel Visibility="{Binding ProfileManager.ShowAddCustomServer, Converter={StaticResource BoolToVis}}"
+                                        Margin="0,4,0,0">
+                                <TextBlock Text="Server URL"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}"
+                                           FontSize="11" Margin="0,0,0,4"/>
+                                <TextBox Text="{Binding ProfileManager.NewServerUrl, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource InputTextBox}"
+                                         Tag="https://headscale.example.com"
+                                         Margin="0,0,0,8"/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Cancel"
+                                            Style="{DynamicResource PopoutButton}"
+                                            Command="{Binding ProfileManager.CancelAddServerCommand}"
+                                            Margin="0,0,4,0"/>
+                                    <Button Content="Connect"
+                                            Style="{DynamicResource AccentButton}"
+                                            Command="{Binding ProfileManager.AddCustomServerCommand}"/>
+                                </StackPanel>
                             </StackPanel>
                         </StackPanel>
 
                         <!-- Profile list -->
                         <ItemsControl ItemsSource="{Binding ProfileManager.Profiles}"
-                                      Visibility="{Binding ProfileManager.ShowAddServer, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                                      Visibility="{Binding ProfileManager.ShowAddOptions, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Style="{DynamicResource PopoutButton}"
@@ -167,8 +314,9 @@
                                                        Text="&#xE73E;"
                                                        FontFamily="{DynamicResource IconFont}"
                                                        FontSize="12"
-                                                       Foreground="{DynamicResource GreenBrush}"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"
+                                                       Margin="8,0,0,0"
                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVis}}"/>
                                             <StackPanel VerticalAlignment="Center">
                                                 <TextBlock FontFamily="{DynamicResource BodyFont}" FontSize="12">
@@ -187,29 +335,20 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Button Content="＋  Add server..."
+                        <Button Content="＋  Add account..."
                                 Style="{DynamicResource PopoutButton}"
                                 Command="{Binding ProfileManager.ShowAddServerViewCommand}"
                                 Foreground="{DynamicResource AccentBrush}"
                                 FontSize="12"
-                                Visibility="{Binding ProfileManager.ShowAddServer, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                                Visibility="{Binding ProfileManager.ShowAddOptions, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
                     </StackPanel>
                 </Border>
 
                 <!-- Divider -->
-                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}"/>
 
                 <!-- ── Connection section ── -->
-                <Border DockPanel.Dock="Top" Padding="14,12,14,10">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ShowPeerDetail}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                <Border Padding="14,12,14,10">
                     <DockPanel>
                         <!-- Toggle switch on the right -->
                         <local:FluentToggleButton DockPanel.Dock="Right"
@@ -382,12 +521,10 @@
                 </Border>
 
                 <!-- Divider -->
-                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"
-                        Visibility="{Binding ShowPeerDetail, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}"/>
 
                 <!-- ── Exit node row ── -->
-                <Button DockPanel.Dock="Top"
-                        Visibility="{Binding ShowPeerDetail, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
+                <Button x:Name="ExitNodeHeader"
                         Style="{DynamicResource PopoutButton}"
                         Command="{Binding ToggleExitNodePickerCommand}"
                         HorizontalContentAlignment="Stretch"
@@ -458,17 +595,14 @@
                 </Button>
 
                 <!-- Exit Node Picker (inline) -->
-                <views:ExitNodePicker DockPanel.Dock="Top"
-                                      DataContext="{Binding ExitNodePicker}"
+                <views:ExitNodePicker DataContext="{Binding ExitNodePicker}"
                                       Visibility="{Binding DataContext.ShowExitNodePicker, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
 
                 <!-- Divider -->
-                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"
-                        Visibility="{Binding ShowPeerDetail, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}"/>
 
                 <!-- ── Settings row ── -->
-                <Button DockPanel.Dock="Top"
-                        Visibility="{Binding ShowPeerDetail, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"
+                <Button x:Name="SettingsHeader"
                         Style="{DynamicResource PopoutButton}"
                         Command="{Binding ToggleSettingsCommand}"
                         HorizontalContentAlignment="Stretch"
@@ -534,8 +668,7 @@
                 </Button>
 
                 <!-- ── Settings panel (inline) ── -->
-                <Border DockPanel.Dock="Top"
-                        Visibility="{Binding ShowSettings, Converter={StaticResource BoolToVis}}"
+                <Border Visibility="{Binding ShowSettings, Converter={StaticResource BoolToVis}}"
                         Background="Transparent"
                         BorderBrush="{DynamicResource CardStrokeBrush}"
                         BorderThickness="0,1"
@@ -613,6 +746,305 @@
                                        VerticalAlignment="Center"/>
                         </DockPanel>
 
+                        <!-- TailDrive section -->
+                        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="4,6"/>
+                        <StackPanel>
+                            <DockPanel Margin="8,4">
+                                <Button DockPanel.Dock="Right"
+                                        Content="&#xE710;"
+                                        FontFamily="{DynamicResource IconFont}"
+                                        FontSize="12"
+                                        Command="{Binding Settings.ShowAddShareViewCommand}"
+                                        ToolTip="Share a folder"
+                                        VerticalAlignment="Center"
+                                        Padding="6,2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Settings.DriveError}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE8B7;"
+                                               FontFamily="{DynamicResource IconFont}"
+                                               FontSize="14"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Foreground="{DynamicResource TextPrimaryBrush}"
+                                               FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                               FontWeight="SemiBold"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="Taildrive"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Settings.IsTailDriveMounted}" Value="True">
+                                                        <Setter Property="Text" Value="{Binding Settings.TailDriveLetter, StringFormat='Taildrive ({0}:)'}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DockPanel>
+
+                            <!-- Add share form -->
+                            <StackPanel Visibility="{Binding Settings.ShowAddShare, Converter={StaticResource BoolToVis}}"
+                                        Margin="8,4,8,8">
+                                <TextBlock Text="Share name"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                           Margin="0,0,0,2"/>
+                                <TextBox Text="{Binding Settings.NewShareName, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource InputTextBox}"
+                                         Tag="e.g. Documents"
+                                         Margin="0,0,0,6"/>
+                                <TextBlock Text="Folder"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                           Margin="0,0,0,2"/>
+                                <DockPanel Margin="0,0,0,6">
+                                    <Button DockPanel.Dock="Right"
+                                            Content="Browse..."
+                                            Style="{DynamicResource PopoutButton}"
+                                            Command="{Binding Settings.BrowseShareFolderCommand}"
+                                            Padding="8,4" Margin="4,0,0,0"
+                                            FontSize="11"
+                                            VerticalAlignment="Center"/>
+                                    <TextBox Text="{Binding Settings.NewSharePath, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{DynamicResource InputTextBox}"
+                                             Tag="C:\Users\you\folder"/>
+                                </DockPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Cancel"
+                                            Style="{DynamicResource PopoutButton}"
+                                            Command="{Binding Settings.CancelAddShareCommand}"
+                                            Margin="0,0,4,0"/>
+                                    <Button Content="Share"
+                                            Style="{DynamicResource AccentButton}"
+                                            Command="{Binding Settings.AddShareCommand}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Shares list -->
+                            <ItemsControl ItemsSource="{Binding Settings.DriveShares}"
+                                          Margin="8,0,8,4">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Margin="0,2">
+                                            <Button DockPanel.Dock="Right"
+                                                    Content="&#xE711;"
+                                                    FontFamily="{StaticResource IconFont}"
+                                                    FontSize="10"
+                                                    Style="{DynamicResource PopoutButton}"
+                                                    Command="{Binding DataContext.Settings.RemoveShareCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding Name}"
+                                                    ToolTip="Remove share"
+                                                    Padding="4,2"
+                                                    VerticalAlignment="Center"/>
+                                            <Button DockPanel.Dock="Right"
+                                                    Content="&#xE838;"
+                                                    FontFamily="{StaticResource IconFont}"
+                                                    FontSize="10"
+                                                    Style="{DynamicResource PopoutButton}"
+                                                    Command="{Binding DataContext.Settings.OpenShareFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                    CommandParameter="{Binding Path}"
+                                                    ToolTip="Open folder"
+                                                    Padding="4,2"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,2,0"/>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                                           FontFamily="{DynamicResource BodyFont}" FontSize="12"/>
+                                                <TextBlock Text="{Binding Path}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                                           FontFamily="{DynamicResource BodyFont}" FontSize="10"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Empty state: no shares -->
+                            <TextBlock Text="No shared folders"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                       Margin="8,2,8,4"
+                                       HorizontalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Settings.DriveShares.Count}" Value="0"/>
+                                                    <Condition Binding="{Binding Settings.DriveError}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <!-- Empty state: Taildrive not available -->
+                            <TextBlock Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                       Margin="8,2,8,4"
+                                       HorizontalAlignment="Center"
+                                       Visibility="{Binding Settings.DriveError, Converter={StaticResource BoolToVis}}">
+                                <Run Text="Taildrive not available."/>
+                                <Hyperlink NavigateUri="https://tailscale.com/kb/1369/taildrive"
+                                           RequestNavigate="OnHyperlinkRequestNavigate"
+                                           Foreground="{DynamicResource AccentBrush}">Learn more</Hyperlink>
+                            </TextBlock>
+
+                            <!-- Mount / Unmount Taildrive -->
+                            <!-- Mounted state: prominent card -->
+                            <Border Margin="8,4"
+                                    Background="{DynamicResource ControlBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="10,8"
+                                    Visibility="{Binding Settings.IsTailDriveMounted, Converter={StaticResource BoolToVis}}">
+                                <DockPanel>
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="&#xE838;"
+                                                FontFamily="{DynamicResource IconFont}"
+                                                FontSize="12"
+                                                Style="{DynamicResource PopoutButton}"
+                                                Command="{Binding Settings.OpenTailDriveCommand}"
+                                                Padding="6,4"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,2,0"/>
+                                        <Button Content="Unmount"
+                                                FontFamily="{DynamicResource BodyFont}"
+                                                FontSize="11"
+                                                Style="{DynamicResource PopoutButton}"
+                                                Command="{Binding Settings.UnmountTailDriveCommand}"
+                                                Padding="8,4"
+                                                VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Settings.TailDriveLetter, StringFormat='{}{0}:'}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}" FontSize="13"
+                                                   FontWeight="SemiBold"/>
+                                        <TextBlock Text="http://100.100.100.100:8080/"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"
+                                                   FontFamily="{DynamicResource BodyFont}" FontSize="10"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </DockPanel>
+                            </Border>
+                            <!-- Not mounted: mount button -->
+                            <DockPanel Margin="8,2">
+                                <Button DockPanel.Dock="Right"
+                                        Content="Mount"
+                                        FontFamily="{DynamicResource BodyFont}"
+                                        FontSize="11"
+                                        Command="{Binding Settings.ShowMountDriveViewCommand}"
+                                        ToolTip="Mount Taildrive as a drive letter"
+                                        VerticalAlignment="Center"
+                                        Padding="8,2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Settings.IsTailDriveMounted}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Settings.ShowMountDrive}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <TextBlock Foreground="{DynamicResource TextTertiaryBrush}"
+                                           FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                           VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Not mounted"/>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Settings.IsTailDriveMounted}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DockPanel>
+
+                            <!-- Mount drive form (drive letter + buttons on one line) -->
+                            <DockPanel Visibility="{Binding Settings.ShowMountDrive, Converter={StaticResource BoolToVis}}"
+                                       Margin="8,4,8,8">
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Cancel"
+                                            Style="{DynamicResource PopoutButton}"
+                                            Command="{Binding Settings.CancelMountDriveCommand}"
+                                            Padding="8,4"
+                                            Margin="4,0,4,0"/>
+                                    <Button Content="Mount"
+                                            Style="{DynamicResource AccentButton}"
+                                            Command="{Binding Settings.MountDriveCommand}"
+                                            Padding="10,4"/>
+                                </StackPanel>
+                                <ComboBox Style="{DynamicResource InputComboBox}"
+                                          ItemsSource="{Binding Settings.AvailableDriveLetters}"
+                                          SelectedItem="{Binding Settings.MountDriveLetter}"
+                                          FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                          VerticalAlignment="Center"/>
+                            </DockPanel>
+
+                            <!-- WebDAV file size limit patch -->
+                            <DockPanel Margin="8,4">
+                                <Button DockPanel.Dock="Right"
+                                        Content="Patch"
+                                        FontFamily="{DynamicResource BodyFont}"
+                                        FontSize="11"
+                                        Command="{Binding Settings.PatchFileSizeLimitCommand}"
+                                        VerticalAlignment="Center"
+                                        Padding="8,2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Settings.IsFileSizePatched}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                               VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                <Setter Property="Text" Value="WebDAV file limit: 50 MB (default)"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Settings.IsFileSizePatched}" Value="True">
+                                                        <Setter Property="Text" Value="WebDAV file limit: 4 GB &#x2713;"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </DockPanel>
+                        </StackPanel>
+
                         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="4,6"/>
 
                         <!-- Theme selector -->
@@ -650,18 +1082,17 @@
                 </Border>
 
                 <!-- Divider -->
-                <Border DockPanel.Dock="Top" Height="1" Background="{DynamicResource DividerBrush}"
-                        Visibility="{Binding ShowPeerDetail, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}"/>
 
                 <!-- ── Peer Detail (replaces list when shown) ── -->
-                <views:PeerDetail DockPanel.Dock="Top"
+                <views:PeerDetail
                                   DataContext="{Binding PeerDetail}"
                                   Visibility="{Binding DataContext.ShowPeerDetail, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVis}}"/>
 
                 <!-- ── Peer list ── -->
-                <DockPanel>
-                    <DockPanel.Style>
-                        <Style TargetType="DockPanel">
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
                             <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ShowPeerDetail}" Value="True">
@@ -669,17 +1100,15 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </DockPanel.Style>
-                    <DockPanel DockPanel.Dock="Top" Margin="14,8,14,4">
+                    </StackPanel.Style>
+                    <StackPanel Orientation="Horizontal" Margin="14,8,14,4">
                         <TextBlock Text="DEVICES"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    FontFamily="{DynamicResource BodyFont}"
                                    FontSize="11" FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
-                    </DockPanel>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  Padding="4,0,4,4">
-                        <ItemsControl ItemsSource="{Binding Peers}">
+                    </StackPanel>
+                    <ItemsControl ItemsSource="{Binding Peers}" Padding="4,0,4,4">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10,7" CornerRadius="4" Cursor="Hand"
@@ -721,8 +1150,10 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
-                </DockPanel>
+                </StackPanel>
+
+                </StackPanel>
+                </ScrollViewer>
             </DockPanel>
         </Grid>
     </Border>

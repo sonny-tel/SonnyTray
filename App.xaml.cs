@@ -15,6 +15,7 @@ public partial class App : Application
     private TailscaleClient? _client;
     private MainViewModel? _mainVm;
     private MainWindow? _popout;
+    internal static bool SuppressDeactivate;
 
     // Context menu items that need dynamic updates
     private MenuItem? _profileMenuItem;
@@ -73,7 +74,7 @@ public partial class App : Application
 
         // Pre-create the popout window so XAML parsing + JIT happens now, not on first click.
         _popout = new MainWindow { DataContext = _mainVm };
-        _popout.Deactivated += (_, _) => HidePopout();
+        _popout.Deactivated += (_, _) => { if (!SuppressDeactivate) HidePopout(); };
 
         await _mainVm.InitializeAsync();
 

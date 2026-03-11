@@ -16,7 +16,6 @@
             BorderBrush="{DynamicResource CardStrokeBrush}"
             BorderThickness="0,1"
             Padding="0">
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
             <StackPanel Margin="14,8,14,12">
 
                 <!-- ── Header: back + name ── -->
@@ -360,6 +359,5 @@
                 </Border>
 
             </StackPanel>
-        </ScrollViewer>
     </Border>
 </UserControl>

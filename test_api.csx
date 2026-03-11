@@ -1,0 +1,13 @@
+using System.IO.Pipes;
+using System.Security.Principal;
+var pipe = new NamedPipeClientStream(".", @"ProtectedPrefix\Administrators\Tailscale\tailscaled", PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Impersonation);
+pipe.Connect(3000);
+var writer = new StreamWriter(pipe);
+var reader = new StreamReader(pipe);
+writer.Write("GET /localapi/v0/drive/shares HTTP/1.1\r\nHost: local-tailscaled.sock\r\nTailscale-Cap: 133\r\n\r\n");
+writer.Flush();
+Thread.Sleep(500);
+var buf = new char[8192];
+var n = reader.Read(buf, 0, buf.Length);
+Console.WriteLine(new string(buf, 0, n));
+pipe.Close();
