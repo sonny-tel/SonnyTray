@@ -345,9 +345,9 @@
                            Margin="0,0,0,4"/>
 
                 <!-- Ping stats -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,6"
-                            Visibility="{Binding PingCount, Converter={StaticResource BoolToVis}}">
-                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                <UniformGrid Columns="4" Margin="0,0,0,6"
+                             Visibility="{Binding PingCount, Converter={StaticResource BoolToVis}}">
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,3,0">
                         <StackPanel>
                             <TextBlock Text="AVG" Foreground="{DynamicResource TextTertiaryBrush}"
                                        FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
@@ -356,7 +356,7 @@
                                        FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="3,0,3,0">
                         <StackPanel>
                             <TextBlock Text="MIN" Foreground="{DynamicResource TextTertiaryBrush}"
                                        FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
@@ -365,7 +365,7 @@
                                        FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="0,0,6,0">
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="3,0,3,0">
                         <StackPanel>
                             <TextBlock Text="MAX" Foreground="{DynamicResource TextTertiaryBrush}"
                                        FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
@@ -374,7 +374,7 @@
                                        FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4">
+                    <Border Background="{DynamicResource CardBrush}" CornerRadius="4" Padding="8,4" Margin="3,0,0,0">
                         <StackPanel>
                             <TextBlock Text="VIA" Foreground="{DynamicResource TextTertiaryBrush}"
                                        FontFamily="{DynamicResource BodyFont}" FontSize="9"/>
@@ -383,7 +383,7 @@
                                        FontFamily="{DynamicResource BodyFont}" FontSize="13" FontWeight="SemiBold"/>
                         </StackPanel>
                     </Border>
-                </StackPanel>
+                </UniformGrid>
 
                 <!-- Ping graph -->
                 <Border Background="{DynamicResource CardBrush}" CornerRadius="6"
