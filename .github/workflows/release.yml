@@ -48,7 +48,6 @@ jobs:
         working-directory: installer
         run: >
           wix build SonnyTray.wxs
-          -ext WixToolset.UI.wixext
           -d Version=${{ steps.version.outputs.VERSION }}
           -d "PublishDir=${{ github.workspace }}\publish"
           -o ${{ github.workspace }}\SonnyTray-${{ steps.version.outputs.VERSION }}.msi
