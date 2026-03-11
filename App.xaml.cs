@@ -37,20 +37,19 @@ public partial class App : Application
 
     private static readonly (int X, int Y)[] DotCenters =
     [
-        (7, 7),  (7, 16),  (7, 25),
-        (16, 7), (16, 16), (16, 25),
-        (25, 7), (25, 16), (25, 25),
+        (6, 6),  (6, 16),  (6, 26),
+        (16, 6), (16, 16), (16, 26),
+        (26, 6), (26, 16), (26, 26),
     ];
 
     private static readonly int[] AllDots = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    private static readonly int[] TDots = [0, 3, 4, 5, 6];
 
     private static readonly int[][] AnimFrames =
     [
-        [0],
-        [0, 1, 3],
-        [0, 1, 2, 3, 4, 6],
-        [0, 1, 2, 3, 4, 5, 6, 7],
-        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        [4],
+        [3, 4, 5],
+        [0, 3, 4, 5, 6],
         [],
     ];
 
@@ -523,18 +522,13 @@ public partial class App : Application
         window.Top = top;
     }
 
+    private static readonly Color DimDot = Color.FromArgb(140, 255, 255, 255);
+
     private static Icon CreateTrayIcon()
     {
-        var bmp = new Bitmap(32, 32);
-        using var g = Graphics.FromImage(bmp);
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-        g.Clear(Color.Transparent);
-
-        using var dotBrush = new SolidBrush(Color.White);
-        foreach (var (x, y) in DotCenters)
-            g.FillEllipse(dotBrush, x - 3, y - 3, 6, 6);
-
+        var bmp = DrawDotsIcon(TDots, Color.White);
         var handle = bmp.GetHicon();
+        bmp.Dispose();
         return Icon.FromHandle(handle);
     }
 
@@ -553,7 +547,7 @@ public partial class App : Application
         if (!string.IsNullOrEmpty(_mainVm.CurrentExitNodeId))
             ApplyIcon(DrawExitNodeIcon());
         else if (_mainVm.IsConnected)
-            ApplyIcon(DrawDotsIcon(AllDots, Color.White));
+            ApplyIcon(DrawDotsIcon(TDots, Color.White));
         else
             ApplyIcon(DrawDotsIcon(AllDots, Color.FromArgb(140, 140, 140)));
     }
@@ -598,18 +592,20 @@ public partial class App : Application
         if (oldHandle != IntPtr.Zero) DestroyIcon(oldHandle);
     }
 
-    private static Bitmap DrawDotsIcon(int[] visible, Color color)
+    private static Bitmap DrawDotsIcon(int[] highlight, Color color)
     {
         var bmp = new Bitmap(32, 32);
         using var g = Graphics.FromImage(bmp);
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         g.Clear(Color.Transparent);
 
-        using var brush = new SolidBrush(color);
-        foreach (var i in visible)
+        var highlightSet = new HashSet<int>(highlight);
+        using var dimBrush = new SolidBrush(DimDot);
+        using var brightBrush = new SolidBrush(color);
+        for (var i = 0; i < DotCenters.Length; i++)
         {
             var (x, y) = DotCenters[i];
-            g.FillEllipse(brush, x - 3, y - 3, 6, 6);
+            g.FillEllipse(highlightSet.Contains(i) ? brightBrush : dimBrush, x - 4, y - 4, 8, 8);
         }
         return bmp;
     }
@@ -621,9 +617,14 @@ public partial class App : Application
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         g.Clear(Color.Transparent);
 
-        using var brush = new SolidBrush(Color.White);
-        foreach (var (x, y) in DotCenters)
-            g.FillEllipse(brush, x - 3, y - 3, 6, 6);
+        var highlightSet = new HashSet<int>(TDots);
+        using var dimBrush = new SolidBrush(DimDot);
+        using var brightBrush = new SolidBrush(Color.White);
+        for (var i = 0; i < DotCenters.Length; i++)
+        {
+            var (x, y) = DotCenters[i];
+            g.FillEllipse(highlightSet.Contains(i) ? brightBrush : dimBrush, x - 4, y - 4, 8, 8);
+        }
 
         using var outlinePen = new Pen(Color.FromArgb(30, 30, 30), 5.5f)
         {
