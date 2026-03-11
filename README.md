@@ -18,7 +18,7 @@ SonnyTray is a custom Tailscale client for Windows that cleans up and improves t
 * Location based exit node picker for Mullvad VPN that isn't 5000 nested hover tooltips
 * Detailed device view with ping graphing inspired from the feature in Tailscale's android app
 * Proper hands free Taildrive support for mounting the WebDAV network drive and creating shares
-* All supported Tailscale settings and features that I could think of
+* All other Tailscale settings and features that I could think of
 
 # Usage
 SonnyTray is not a replacement for tailscaled, it only talks over the IPN. So you will still need to have Tailscale installed, however you don't need to have the stock Tailscale GUI running, if you don't like it you can go to `Settings > Apps > Startup > Tailscale GUI client` disable it, then right click it's icon in the tray menu and click exit.
