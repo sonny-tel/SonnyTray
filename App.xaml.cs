@@ -29,6 +29,29 @@ public partial class App : Application
     private MenuItem? _copyFqdnItem;
     private MenuItem? _tailscaleVersionItem;
 
+    private System.Windows.Threading.DispatcherTimer? _iconAnimTimer;
+    private int _animFrame;
+    private IntPtr _prevIconHandle;
+
+    private static readonly (int X, int Y)[] DotCenters =
+    [
+        (7, 7),  (7, 16),  (7, 25),
+        (16, 7), (16, 16), (16, 25),
+        (25, 7), (25, 16), (25, 25),
+    ];
+
+    private static readonly int[] AllDots = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+    private static readonly int[][] AnimFrames =
+    [
+        [0],
+        [0, 1, 3],
+        [0, 1, 2, 3, 4, 6],
+        [0, 1, 2, 3, 4, 5, 6, 7],
+        [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        [],
+    ];
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -61,11 +84,14 @@ public partial class App : Application
                 or nameof(MainViewModel.IsConnected)
                 or nameof(MainViewModel.SelfIP)
                 or nameof(MainViewModel.CurrentExitNodeName)
+                or nameof(MainViewModel.CurrentExitNodeId)
                 or nameof(MainViewModel.TailnetName)
-                or nameof(MainViewModel.NeedsLogin))
+                or nameof(MainViewModel.NeedsLogin)
+                or nameof(MainViewModel.IsBusy))
             {
                 UpdateContextMenu();
                 UpdateTooltip();
+                UpdateTrayIcon();
             }
 
             // Show a balloon notification when login is required
@@ -81,6 +107,7 @@ public partial class App : Application
         ThemeManager.ThemeChanged += RefreshContextMenuTheme;
         UpdateContextMenu();
         UpdateTooltip();
+        UpdateTrayIcon();
 
         // If not signed in at startup, open the popout so the user sees the login prompt
         if (_mainVm.NeedsLogin)
@@ -486,19 +513,122 @@ public partial class App : Application
         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         g.Clear(Color.Transparent);
 
-        // Tailscale-style dots 3x3 grid, white on transparent
         using var dotBrush = new SolidBrush(Color.White);
-        int[] offsets = [7, 16, 25];
-        foreach (var x in offsets)
-            foreach (var y in offsets)
-                g.FillEllipse(dotBrush, x - 3, y - 3, 6, 6);
+        foreach (var (x, y) in DotCenters)
+            g.FillEllipse(dotBrush, x - 3, y - 3, 6, 6);
 
         var handle = bmp.GetHicon();
         return Icon.FromHandle(handle);
     }
 
+    private void UpdateTrayIcon()
+    {
+        if (_trayIcon is null || _mainVm is null) return;
+
+        if (_mainVm.IsBusy || _mainVm.BackendState is "Starting")
+        {
+            StartIconAnimation();
+            return;
+        }
+
+        StopIconAnimation();
+
+        if (!string.IsNullOrEmpty(_mainVm.CurrentExitNodeId))
+            ApplyIcon(DrawExitNodeIcon());
+        else if (_mainVm.IsConnected)
+            ApplyIcon(DrawDotsIcon(AllDots, Color.White));
+        else
+            ApplyIcon(DrawDotsIcon(AllDots, Color.FromArgb(140, 140, 140)));
+    }
+
+    private void StartIconAnimation()
+    {
+        if (_iconAnimTimer is not null) return;
+        _animFrame = 0;
+        ApplyIcon(DrawDotsIcon(AnimFrames[0], Color.White));
+        _iconAnimTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(250)
+        };
+        _iconAnimTimer.Tick += OnIconAnimTick;
+        _iconAnimTimer.Start();
+    }
+
+    private void OnIconAnimTick(object? sender, EventArgs e)
+    {
+        _animFrame = (_animFrame + 1) % AnimFrames.Length;
+        ApplyIcon(DrawDotsIcon(AnimFrames[_animFrame], Color.White));
+    }
+
+    private void StopIconAnimation()
+    {
+        if (_iconAnimTimer is null) return;
+        _iconAnimTimer.Stop();
+        _iconAnimTimer.Tick -= OnIconAnimTick;
+        _iconAnimTimer = null;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool DestroyIcon(IntPtr handle);
+
+    private void ApplyIcon(Bitmap bmp)
+    {
+        var oldHandle = _prevIconHandle;
+        var newHandle = bmp.GetHicon();
+        bmp.Dispose();
+        _trayIcon!.Icon = Icon.FromHandle(newHandle);
+        _prevIconHandle = newHandle;
+        if (oldHandle != IntPtr.Zero) DestroyIcon(oldHandle);
+    }
+
+    private static Bitmap DrawDotsIcon(int[] visible, Color color)
+    {
+        var bmp = new Bitmap(32, 32);
+        using var g = Graphics.FromImage(bmp);
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.Clear(Color.Transparent);
+
+        using var brush = new SolidBrush(color);
+        foreach (var i in visible)
+        {
+            var (x, y) = DotCenters[i];
+            g.FillEllipse(brush, x - 3, y - 3, 6, 6);
+        }
+        return bmp;
+    }
+
+    private static Bitmap DrawExitNodeIcon()
+    {
+        var bmp = new Bitmap(32, 32);
+        using var g = Graphics.FromImage(bmp);
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.Clear(Color.Transparent);
+
+        // Left column of dots
+        using var brush = new SolidBrush(Color.White);
+        foreach (var i in new[] { 0, 1, 2 })
+        {
+            var (x, y) = DotCenters[i];
+            g.FillEllipse(brush, x - 3, y - 3, 6, 6);
+        }
+
+        // Right-pointing arrow (traffic routing indicator)
+        using var pen = new Pen(Color.White, 2.5f)
+        {
+            StartCap = System.Drawing.Drawing2D.LineCap.Round,
+            EndCap = System.Drawing.Drawing2D.LineCap.Round,
+        };
+        g.DrawLine(pen, 15, 16, 27, 16);  // shaft
+        g.DrawLine(pen, 22, 10, 28, 16);  // arrowhead top
+        g.DrawLine(pen, 22, 22, 28, 16);  // arrowhead bottom
+
+        return bmp;
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
+        StopIconAnimation();
+        if (_prevIconHandle != IntPtr.Zero) DestroyIcon(_prevIconHandle);
         _trayIcon?.Dispose();
         _mainVm?.Dispose();
         _client?.Dispose();
