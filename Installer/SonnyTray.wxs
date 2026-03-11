@@ -2,7 +2,7 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <Package Name="SonnyTray"
-           Manufacturer="SonnyTray"
+           Manufacturer="sonny.tel"
            Version="$(var.Version)"
            UpgradeCode="3F8A7C2E-5D91-4B6A-A8E0-1C2D3E4F5678"
            Scope="perUser"
