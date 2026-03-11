@@ -197,6 +197,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _latestStatus = status;
         ExitNodePicker.MarkDirty();
 
+        // Update peer detail if open
+        if (ShowPeerDetail && PeerDetail.Peer is { } currentPeer && status.Peer is not null)
+        {
+            var freshPeer = Peers.FirstOrDefault(p => p.Id == currentPeer.Id);
+            if (freshPeer is not null)
+                PeerDetail.UpdatePeer(freshPeer);
+        }
+
         // If picker is already open, rebuild immediately
         if (ShowExitNodePicker)
             ExitNodePicker.BuildNodes(status);
@@ -206,6 +214,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (value && _latestStatus is not null)
             ExitNodePicker.BuildNodes(_latestStatus);
+    }
+
+    partial void OnShowPeerDetailChanged(bool value)
+    {
+        if (!value)
+            PeerDetail.StopRefreshLoop();
     }
 
     /// <summary>

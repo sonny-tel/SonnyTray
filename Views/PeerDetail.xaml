@@ -147,6 +147,27 @@
                     </TextBlock>
                 </DockPanel>
 
+                <!-- Active session -->
+                <DockPanel Margin="0,2">
+                    <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
+                               FontFamily="{DynamicResource BodyFont}" FontSize="12">
+                        <Run Text="Session" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        <Run Text=" "/>
+                        <Run Foreground="{DynamicResource TextSecondaryBrush}">
+                            <Run.Style>
+                                <Style TargetType="Run">
+                                    <Setter Property="Text" Value="Idle"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Peer.Active}" Value="True">
+                                            <Setter Property="Text" Value="Active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Run.Style>
+                        </Run>
+                    </TextBlock>
+                </DockPanel>
+
                 <!-- Connection via -->
                 <DockPanel Margin="0,2">
                     <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
@@ -157,9 +178,22 @@
                     </TextBlock>
                 </DockPanel>
 
-                <!-- Relay -->
-                <DockPanel Margin="0,2"
-                           Visibility="{Binding Peer.HasRelay, Converter={StaticResource BoolToVis}}">
+                <!-- Relay (only shown when connection is relayed, not direct) -->
+                <DockPanel Margin="0,2">
+                    <DockPanel.Style>
+                        <Style TargetType="DockPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Peer.HasRelay}" Value="True"/>
+                                        <Condition Binding="{Binding Peer.IsDirect}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Style>
                     <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
                                FontFamily="{DynamicResource BodyFont}" FontSize="12">
                         <Run Text="Relay" Foreground="{DynamicResource TextTertiaryBrush}"/>

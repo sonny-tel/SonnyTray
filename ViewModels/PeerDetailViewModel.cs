@@ -11,6 +11,7 @@ public partial class PeerDetailViewModel : ObservableObject
 {
     private readonly TailscaleClient _client;
     private CancellationTokenSource? _pingCts;
+    private CancellationTokenSource? _refreshCts;
 
     [ObservableProperty] private PeerItem? _peer;
     [ObservableProperty] private bool _isPinging;
@@ -45,6 +46,86 @@ public partial class PeerDetailViewModel : ObservableObject
         PingErrors = 0;
         LastConnectionType = peer.ConnectionType;
         LastEndpoint = peer.CurAddr;
+        StartRefreshLoop();
+    }
+
+    public void UpdatePeer(PeerItem peer)
+    {
+        Peer = peer;
+        if (!IsPinging)
+        {
+            LastConnectionType = peer.ConnectionType;
+            LastEndpoint = peer.CurAddr;
+        }
+    }
+
+    public void StopRefreshLoop()
+    {
+        _refreshCts?.Cancel();
+        _refreshCts = null;
+    }
+
+    private void StartRefreshLoop()
+    {
+        StopRefreshLoop();
+        _refreshCts = new CancellationTokenSource();
+        _ = RefreshLoopAsync(_refreshCts.Token);
+    }
+
+    private async Task RefreshLoopAsync(CancellationToken ct)
+    {
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                await Task.Delay(5000, ct);
+                if (Peer is null) break;
+
+                try
+                {
+                    var status = await _client.GetStatusAsync(ct);
+                    if (status.Peer is null) continue;
+
+                    foreach (var (_, ps) in status.Peer)
+                    {
+                        if (ps.Id != Peer.Id) continue;
+
+                        Peer = new PeerItem
+                        {
+                            Id = ps.Id,
+                            HostName = ps.HostName,
+                            DNSName = ps.DNSName,
+                            OS = ps.OS,
+                            IP = ps.TailscaleIPs?.FirstOrDefault() ?? "",
+                            IPv6 = ps.TailscaleIPs is { Count: > 1 } ? ps.TailscaleIPs[1] : "",
+                            IsOnline = ps.Online,
+                            IsExitNode = ps.ExitNode,
+                            ExitNodeOption = ps.ExitNodeOption,
+                            Active = ps.Active,
+                            Relay = ps.Relay,
+                            Tags = ps.Tags,
+                            RxBytes = ps.RxBytes,
+                            TxBytes = ps.TxBytes,
+                            PublicKey = ps.PublicKey,
+                            CurAddr = ps.CurAddr,
+                            LastSeen = ps.LastSeen,
+                            Created = ps.Created,
+                            UserID = ps.UserID,
+                        };
+
+                        if (!IsPinging)
+                        {
+                            LastConnectionType = Peer.ConnectionType;
+                            LastEndpoint = Peer.CurAddr;
+                        }
+                        break;
+                    }
+                }
+                catch (OperationCanceledException) { throw; }
+                catch { /* tolerate transient errors */ }
+            }
+        }
+        catch (OperationCanceledException) { }
     }
 
     [RelayCommand]
