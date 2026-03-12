@@ -69,7 +69,7 @@
 
     <!-- ── Typography ── -->
     <FontFamily x:Key="BodyFont">Segoe UI Variable, Segoe UI, sans-serif</FontFamily>
-    <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+    <FontFamily x:Key="IconFont">pack://application:,,,/Assets/Fonts/#Segoe Fluent Icons, Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
     <!-- ── Scrollbar (WinUI 3 thin overlay) ── -->
     <SolidColorBrush x:Key="ScrollBarThumbBrush" Color="#99FFFFFF"/>

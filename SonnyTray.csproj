@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\icon.ico" />
+    <Resource Include="Assets\Fonts\SegoeIcons.ttf" />
   </ItemGroup>
 
   <ItemGroup>

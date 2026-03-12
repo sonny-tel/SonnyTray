@@ -768,20 +768,12 @@
                                         Content="&#xE710;"
                                         FontFamily="{DynamicResource IconFont}"
                                         FontSize="12"
+                                        Style="{DynamicResource PopoutButton}"
                                         Command="{Binding Settings.ShowAddShareViewCommand}"
                                         ToolTip="Share a folder"
                                         VerticalAlignment="Center"
-                                        Padding="6,2">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Settings.DriveError}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                        Padding="6,2"
+                                        Visibility="{Binding Settings.DriveError, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="&#xE8B7;"
                                                FontFamily="{DynamicResource IconFont}"
@@ -853,7 +845,7 @@
                                         <DockPanel Margin="0,2">
                                             <Button DockPanel.Dock="Right"
                                                     Content="&#xE711;"
-                                                    FontFamily="{StaticResource IconFont}"
+                                                    FontFamily="{DynamicResource IconFont}"
                                                     FontSize="10"
                                                     Style="{DynamicResource PopoutButton}"
                                                     Command="{Binding DataContext.Settings.RemoveShareCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -863,7 +855,7 @@
                                                     VerticalAlignment="Center"/>
                                             <Button DockPanel.Dock="Right"
                                                     Content="&#xE838;"
-                                                    FontFamily="{StaticResource IconFont}"
+                                                    FontFamily="{DynamicResource IconFont}"
                                                     FontSize="10"
                                                     Style="{DynamicResource PopoutButton}"
                                                     Command="{Binding DataContext.Settings.OpenShareFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -959,44 +951,22 @@
                                 </DockPanel>
                             </Border>
                             <!-- Not mounted: mount button -->
-                            <DockPanel Margin="8,2">
+                            <DockPanel Margin="8,2"
+                                       Visibility="{Binding Settings.IsTailDriveMounted, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                                 <Button DockPanel.Dock="Right"
                                         Content="Mount"
                                         FontFamily="{DynamicResource BodyFont}"
                                         FontSize="11"
+                                        Style="{DynamicResource PopoutButton}"
                                         Command="{Binding Settings.ShowMountDriveViewCommand}"
                                         ToolTip="Mount Taildrive as a drive letter"
                                         VerticalAlignment="Center"
-                                        Padding="8,2">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Settings.IsTailDriveMounted}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding Settings.ShowMountDrive}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
-                                <TextBlock Foreground="{DynamicResource TextTertiaryBrush}"
+                                        Padding="8,2"
+                                        Visibility="{Binding Settings.ShowMountDrive, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                                <TextBlock Text="Not mounted"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
                                            FontFamily="{DynamicResource BodyFont}" FontSize="11"
-                                           VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Text" Value="Not mounted"/>
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Settings.IsTailDriveMounted}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                           VerticalAlignment="Center"/>
                             </DockPanel>
 
                             <!-- Mount drive form (drive letter + buttons on one line) -->
@@ -1026,26 +996,17 @@
                                         Content="Patch"
                                         FontFamily="{DynamicResource BodyFont}"
                                         FontSize="11"
+                                        Style="{DynamicResource PopoutButton}"
                                         Command="{Binding Settings.PatchFileSizeLimitCommand}"
                                         VerticalAlignment="Center"
-                                        Padding="8,2">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource PopoutButton}">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Settings.IsFileSizePatched}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                                </Button>
+                                        Padding="8,2"
+                                        Visibility="{Binding Settings.IsFileSizePatched, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock FontFamily="{DynamicResource BodyFont}" FontSize="11"
                                                VerticalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                 <Setter Property="Text" Value="WebDAV file limit: 50 MB (default)"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Settings.IsFileSizePatched}" Value="True">

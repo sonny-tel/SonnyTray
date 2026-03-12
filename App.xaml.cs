@@ -34,6 +34,8 @@ public partial class App : Application
     private System.Windows.Threading.DispatcherTimer? _iconAnimTimer;
     private int _animFrame;
     private IntPtr _prevIconHandle;
+    private string _lastProfilePicUrl = "";
+    private System.Windows.Media.Imaging.BitmapImage? _cachedProfilePic;
 
     private static readonly (int X, int Y)[] DotCenters =
     [
@@ -56,6 +58,8 @@ public partial class App : Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        ThemeManager.ApplyTheme(AppThemeMode.System);
 
         _client = new TailscaleClient();
         _mainVm = new MainViewModel(_client);
@@ -104,7 +108,15 @@ public partial class App : Application
                     H.NotifyIcon.Core.NotificationIcon.Info);
             }
         };
-        _mainVm.ProfileManager.PropertyChanged += (_, _) => UpdateContextMenu();
+        _mainVm.ProfileManager.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName is nameof(ProfileManagerViewModel.ProfilePicUrl)
+                or nameof(ProfileManagerViewModel.UserDisplayName)
+                or nameof(ProfileManagerViewModel.ControlHostName))
+            {
+                UpdateContextMenu();
+            }
+        };
         ThemeManager.ThemeChanged += RefreshContextMenuTheme;
         UpdateContextMenu();
         UpdateTooltip();
@@ -246,6 +258,7 @@ public partial class App : Application
             var controlHost = pm.ControlHostName;
 
             // Profile picture
+            var picUrl = pm.ProfilePicUrl;
             var picBorder = new Border
             {
                 CornerRadius = new CornerRadius(12),
@@ -255,24 +268,52 @@ public partial class App : Application
                 VerticalAlignment = VerticalAlignment.Center,
                 Background = (System.Windows.Media.Brush)FindResource("SurfaceBrush"),
             };
-            if (!string.IsNullOrEmpty(pm.ProfilePicUrl))
+            if (!string.IsNullOrEmpty(picUrl))
             {
-                var inner = new Border { CornerRadius = new CornerRadius(12) };
-                try
+                // Only re-download if the URL changed
+                if (picUrl != _lastProfilePicUrl || _cachedProfilePic is null)
                 {
-                    var bmp = new System.Windows.Media.Imaging.BitmapImage();
-                    bmp.BeginInit();
-                    bmp.UriSource = new Uri(pm.ProfilePicUrl, UriKind.Absolute);
-                    bmp.DecodePixelWidth = 48;
-                    bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
-                    bmp.EndInit();
-                    inner.Background = new System.Windows.Media.ImageBrush(bmp)
+                    _lastProfilePicUrl = picUrl;
+                    try
+                    {
+                        var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                        bmp.BeginInit();
+                        bmp.UriSource = new Uri(picUrl, UriKind.Absolute);
+                        bmp.DecodePixelWidth = 48;
+                        bmp.DecodePixelHeight = 48;
+                        bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                        bmp.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.IgnoreColorProfile;
+                        bmp.EndInit();
+                        if (bmp.IsDownloading)
+                        {
+                            bmp.DownloadCompleted += (_, _) => Dispatcher.BeginInvoke(UpdateContextMenu);
+                        }
+                        else
+                        {
+                            bmp.Freeze();
+                        }
+                        _cachedProfilePic = bmp;
+                    }
+                    catch
+                    {
+                        _cachedProfilePic = null;
+                    }
+                }
+
+                if (_cachedProfilePic is not null)
+                {
+                    var inner = new Border { CornerRadius = new CornerRadius(12) };
+                    inner.Background = new System.Windows.Media.ImageBrush(_cachedProfilePic)
                     {
                         Stretch = System.Windows.Media.Stretch.UniformToFill,
                     };
+                    picBorder.Child = inner;
                 }
-                catch { }
-                picBorder.Child = inner;
+            }
+            else
+            {
+                _lastProfilePicUrl = "";
+                _cachedProfilePic = null;
             }
 
             // Text content
