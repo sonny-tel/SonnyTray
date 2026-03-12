@@ -290,6 +290,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     }
                     catch { /* tolerate transient errors during refresh */ }
 
+                    try { await Settings.RefreshDriveStateAsync(); }
+                    catch { /* tolerate transient errors */ }
+
                     // Only clear IsBusy once we've reached a settled state.
                     if (_busyWait == BusyWait.UntilSettled)
                     {

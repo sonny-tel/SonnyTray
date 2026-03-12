@@ -67,9 +67,7 @@ public partial class SettingsViewModel : ObservableObject
             var routes = prefs.AdvertiseRoutes ?? [];
             AdvertiseExitNode = routes.Contains("0.0.0.0/0") && routes.Contains("::/0");
             _otherRoutes = routes.Where(r => r is not "0.0.0.0/0" and not "::/0").ToList();
-            await RefreshDriveSharesAsync();
-            await RefreshMountedDrivesAsync();
-            RefreshFileSizeLimit();
+            await RefreshDriveStateAsync();
         }
         catch (Exception ex)
         {
@@ -212,6 +210,13 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     // ---------- TailDrive ----------
+
+    public async Task RefreshDriveStateAsync()
+    {
+        await RefreshDriveSharesAsync();
+        await RefreshMountedDrivesAsync();
+        RefreshFileSizeLimit();
+    }
 
     public async Task RefreshDriveSharesAsync()
     {
