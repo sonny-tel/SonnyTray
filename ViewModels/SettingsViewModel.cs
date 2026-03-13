@@ -31,6 +31,8 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private string _newShareName = "";
     [ObservableProperty] private string _newSharePath = "";
     [ObservableProperty] private bool _driveError;
+    [ObservableProperty] private bool _canDriveShare;
+    [ObservableProperty] private bool _canDriveAccess;
     public ObservableCollection<DriveShareItem> DriveShares { get; } = [];
 
     // TailDrive mounting
@@ -220,10 +222,17 @@ public partial class SettingsViewModel : ObservableObject
 
     public async Task RefreshDriveSharesAsync()
     {
+        DriveError = !CanDriveShare && !CanDriveAccess;
+
+        if (!CanDriveShare)
+        {
+            DriveShares.Clear();
+            return;
+        }
+
         try
         {
             var shares = await _client.GetDriveSharesAsync();
-            DriveError = false;
             DriveShares.Clear();
             foreach (var s in shares)
                 DriveShares.Add(new DriveShareItem { Name = s.Name, Path = s.Path });
@@ -231,7 +240,6 @@ public partial class SettingsViewModel : ObservableObject
         catch (Exception ex)
         {
             Debug.WriteLine($"Failed to load drive shares: {ex.Message}");
-            DriveError = true;
             DriveShares.Clear();
         }
     }

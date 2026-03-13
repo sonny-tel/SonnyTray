@@ -773,7 +773,7 @@
                                         ToolTip="Share a folder"
                                         VerticalAlignment="Center"
                                         Padding="6,2"
-                                        Visibility="{Binding Settings.DriveError, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}"/>
+                                        Visibility="{Binding Settings.CanDriveShare, Converter={StaticResource BoolToVis}}"/>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock Text="&#xE8B7;"
                                                FontFamily="{DynamicResource IconFont}"
@@ -839,7 +839,8 @@
 
                             <!-- Shares list -->
                             <ItemsControl ItemsSource="{Binding Settings.DriveShares}"
-                                          Margin="8,0,8,4">
+                                          Margin="8,0,8,4"
+                                          Visibility="{Binding Settings.CanDriveShare, Converter={StaticResource BoolToVis}}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <DockPanel Margin="0,2">
@@ -891,7 +892,7 @@
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>
                                                     <Condition Binding="{Binding Settings.DriveShares.Count}" Value="0"/>
-                                                    <Condition Binding="{Binding Settings.DriveError}" Value="False"/>
+                                                    <Condition Binding="{Binding Settings.CanDriveShare}" Value="True"/>
                                                 </MultiDataTrigger.Conditions>
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </MultiDataTrigger>
@@ -918,8 +919,21 @@
                                     BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="1"
                                     CornerRadius="6"
-                                    Padding="10,8"
-                                    Visibility="{Binding Settings.IsTailDriveMounted, Converter={StaticResource BoolToVis}}">
+                                    Padding="10,8">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Settings.CanDriveAccess}" Value="True"/>
+                                                    <Condition Binding="{Binding Settings.IsTailDriveMounted}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
                                 <DockPanel>
                                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                                         <Button Content="&#xE838;"
@@ -951,8 +965,21 @@
                                 </DockPanel>
                             </Border>
                             <!-- Not mounted: mount button -->
-                            <DockPanel Margin="8,2"
-                                       Visibility="{Binding Settings.IsTailDriveMounted, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
+                            <DockPanel Margin="8,2">
+                                <DockPanel.Style>
+                                    <Style TargetType="DockPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Settings.CanDriveAccess}" Value="True"/>
+                                                    <Condition Binding="{Binding Settings.IsTailDriveMounted}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DockPanel.Style>
                                 <Button DockPanel.Dock="Right"
                                         Content="Mount"
                                         FontFamily="{DynamicResource BodyFont}"
@@ -970,8 +997,21 @@
                             </DockPanel>
 
                             <!-- Mount drive form (drive letter + buttons on one line) -->
-                            <DockPanel Visibility="{Binding Settings.ShowMountDrive, Converter={StaticResource BoolToVis}}"
-                                       Margin="8,4,8,8">
+                            <DockPanel Margin="8,4,8,8">
+                                <DockPanel.Style>
+                                    <Style TargetType="DockPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Settings.CanDriveAccess}" Value="True"/>
+                                                    <Condition Binding="{Binding Settings.ShowMountDrive}" Value="True"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DockPanel.Style>
                                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Button Content="Cancel"
                                             Style="{DynamicResource PopoutButton}"
@@ -991,7 +1031,8 @@
                             </DockPanel>
 
                             <!-- WebDAV file size limit patch -->
-                            <DockPanel Margin="8,4">
+                            <DockPanel Margin="8,4"
+                                       Visibility="{Binding Settings.CanDriveAccess, Converter={StaticResource BoolToVis}}">
                                 <Button DockPanel.Dock="Right"
                                         Content="Patch"
                                         FontFamily="{DynamicResource BodyFont}"

@@ -213,6 +213,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
             }
         }
 
+        // Determine TailDrive capabilities from Self CapMap
+        var capMap = status.Self?.CapMap;
+        Settings.CanDriveShare = capMap?.ContainsKey("drive:share") == true;
+        Settings.CanDriveAccess = capMap?.ContainsKey("drive:access") == true;
+
         _latestStatus = status;
         ExitNodePicker.MarkDirty();
 

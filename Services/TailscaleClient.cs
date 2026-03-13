@@ -189,7 +189,7 @@ public sealed class TailscaleClient : IDisposable
 
     public async Task<DriveShare[]> GetDriveSharesAsync(CancellationToken ct = default)
     {
-        return await GetJsonAsync<DriveShare[]>("/localapi/v0/drive/shares", ct);
+        return await _http.GetFromJsonAsync<DriveShare[]>("/localapi/v0/drive/shares", ct) ?? [];
     }
 
     public async Task AddDriveShareAsync(DriveShare share, CancellationToken ct = default)
