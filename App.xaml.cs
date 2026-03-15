@@ -484,10 +484,10 @@ public partial class App : Application
         UpdateContextMenu();
     }
 
-    private static TextBlock MenuIcon(string glyph) => new()
+    private TextBlock MenuIcon(string glyph) => new()
     {
         Text = glyph,
-        FontFamily = new System.Windows.Media.FontFamily("Segoe Fluent Icons"),
+        FontFamily = (System.Windows.Media.FontFamily)FindResource("IconFont"),
         FontSize = 14,
     };
 

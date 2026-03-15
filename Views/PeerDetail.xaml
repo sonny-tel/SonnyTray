@@ -14,7 +14,7 @@
 
     <Border Background="Transparent"
             BorderBrush="{DynamicResource CardStrokeBrush}"
-            BorderThickness="0,1"
+            BorderThickness="0,0,0,1"
             Padding="0">
             <StackPanel Margin="14,8,14,12">
 
@@ -310,6 +310,7 @@
                     </TextBlock>
                 </DockPanel>
 
+                <StackPanel Visibility="{Binding Peer.IsOnline, Converter={StaticResource BoolToVis}}">
                 <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,8"/>
 
                 <!-- ── Ping ── -->
@@ -391,6 +392,7 @@
                         Visibility="{Binding PingCount, Converter={StaticResource BoolToVis}}">
                     <Canvas x:Name="PingCanvas" ClipToBounds="True" SizeChanged="OnCanvasSizeChanged"/>
                 </Border>
+                </StackPanel>
 
             </StackPanel>
     </Border>
