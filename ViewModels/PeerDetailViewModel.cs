@@ -13,7 +13,14 @@ public partial class PeerDetailViewModel : ObservableObject
     private CancellationTokenSource? _pingCts;
     private CancellationTokenSource? _refreshCts;
 
-    [ObservableProperty] private PeerItem? _peer;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PeerRxDisplay))]
+    [NotifyPropertyChangedFor(nameof(PeerTxDisplay))]
+    private PeerItem? _peer;
+
+    public string PeerRxDisplay => Peer?.RxDisplay ?? "";
+    public string PeerTxDisplay => Peer?.TxDisplay ?? "";
+
     [ObservableProperty] private bool _isPinging;
     [ObservableProperty] private string _pingStatus = "";
     [ObservableProperty] private double _lastLatencyMs;
@@ -78,7 +85,7 @@ public partial class PeerDetailViewModel : ObservableObject
         {
             while (!ct.IsCancellationRequested)
             {
-                await Task.Delay(5000, ct);
+                await Task.Delay(2000, ct);
                 if (Peer is null) break;
 
                 try
@@ -90,7 +97,7 @@ public partial class PeerDetailViewModel : ObservableObject
                     {
                         if (ps.Id != Peer.Id) continue;
 
-                        Peer = new PeerItem
+                        var item = new PeerItem
                         {
                             Id = ps.Id,
                             HostName = ps.HostName,
@@ -113,11 +120,15 @@ public partial class PeerDetailViewModel : ObservableObject
                             UserID = ps.UserID,
                         };
 
-                        if (!IsPinging)
+                        Application.Current?.Dispatcher.Invoke(() =>
                         {
-                            LastConnectionType = Peer.ConnectionType;
-                            LastEndpoint = Peer.CurAddr;
-                        }
+                            Peer = item;
+                            if (!IsPinging)
+                            {
+                                LastConnectionType = Peer.ConnectionType;
+                                LastEndpoint = Peer.CurAddr;
+                            }
+                        });
                         break;
                     }
                 }

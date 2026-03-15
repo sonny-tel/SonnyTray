@@ -1,7 +1,9 @@
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using SonnyTray.ViewModels;
 
@@ -18,9 +20,83 @@ public partial class PeerDetail : UserControl
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (e.OldValue is PeerDetailViewModel oldVm)
+        {
             oldVm.PingHistory.CollectionChanged -= OnPingHistoryChanged;
+            oldVm.PropertyChanged -= OnViewModelPropertyChanged;
+        }
         if (e.NewValue is PeerDetailViewModel newVm)
+        {
             newVm.PingHistory.CollectionChanged += OnPingHistoryChanged;
+            newVm.PropertyChanged += OnViewModelPropertyChanged;
+        }
+    }
+
+    private bool _hasScrolledForPing;
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(PeerDetailViewModel.IsPinging)
+            && sender is PeerDetailViewModel { IsPinging: true })
+        {
+            _hasScrolledForPing = false;
+        }
+
+        if (e.PropertyName == nameof(PeerDetailViewModel.PingCount)
+            && !_hasScrolledForPing
+            && sender is PeerDetailViewModel { PingCount: > 0 })
+        {
+            _hasScrolledForPing = true;
+            Dispatcher.InvokeAsync(() => SmoothScrollToElement(PingSection),
+                System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+    }
+
+    private void SmoothScrollToElement(FrameworkElement element)
+    {
+        // Walk up to find the hosting ScrollViewer
+        var scrollViewer = FindParentScrollViewer(this);
+        if (scrollViewer is null) return;
+
+        // Get the element's position relative to the scroll content
+        var transform = element.TransformToVisual(scrollViewer);
+        var position = transform.Transform(new Point(0, 0));
+        var targetOffset = scrollViewer.VerticalOffset + position.Y - 8;
+        targetOffset = Math.Clamp(targetOffset, 0, scrollViewer.ScrollableHeight);
+
+        AnimateScroll(scrollViewer, targetOffset);
+    }
+
+    private static void AnimateScroll(ScrollViewer viewer, double toOffset)
+    {
+        var from = viewer.VerticalOffset;
+        var duration = TimeSpan.FromMilliseconds(300);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+        var start = DateTime.UtcNow;
+
+        CompositionTarget.Rendering -= Scroll;
+        CompositionTarget.Rendering += Scroll;
+
+        void Scroll(object? s, EventArgs e)
+        {
+            var elapsed = (DateTime.UtcNow - start).TotalMilliseconds;
+            var t = Math.Clamp(elapsed / duration.TotalMilliseconds, 0, 1);
+            // Apply cubic ease-out
+            var eased = 1 - Math.Pow(1 - t, 3);
+            viewer.ScrollToVerticalOffset(from + (toOffset - from) * eased);
+            if (t >= 1)
+                CompositionTarget.Rendering -= Scroll;
+        }
+    }
+
+    private static ScrollViewer? FindParentScrollViewer(DependencyObject child)
+    {
+        var parent = VisualTreeHelper.GetParent(child);
+        while (parent is not null)
+        {
+            if (parent is ScrollViewer sv) return sv;
+            parent = VisualTreeHelper.GetParent(parent);
+        }
+        return null;
     }
 
     private void OnPingHistoryChanged(object? sender, NotifyCollectionChangedEventArgs e)

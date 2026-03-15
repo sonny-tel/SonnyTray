@@ -266,11 +266,11 @@
                                FontFamily="{DynamicResource BodyFont}" FontSize="12">
                         <Run Text="Rx" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <Run Text=" "/>
-                        <Run Text="{Binding Peer.RxDisplay, Mode=OneWay}"/>
+                        <Run Text="{Binding PeerRxDisplay, Mode=OneWay}"/>
                         <Run Text="  "/>
                         <Run Text="Tx" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         <Run Text=" "/>
-                        <Run Text="{Binding Peer.TxDisplay, Mode=OneWay}"/>
+                        <Run Text="{Binding PeerTxDisplay, Mode=OneWay}"/>
                     </TextBlock>
                 </DockPanel>
 
@@ -313,7 +313,7 @@
                 <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,8"/>
 
                 <!-- ── Ping ── -->
-                <DockPanel Margin="0,4,0,6">
+                <DockPanel x:Name="PingSection" Margin="0,4,0,6">
                     <Button DockPanel.Dock="Right"
                             Style="{DynamicResource PopoutButton}"
                             Command="{Binding TogglePingCommand}"

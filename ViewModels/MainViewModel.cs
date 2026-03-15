@@ -51,6 +51,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     public bool IsNotBusy => !IsBusy;
 
+    // User role capabilities
+    public ObservableCollection<string> UserRoles { get; } = [];
+    [ObservableProperty] private bool _hasUserRoles;
+
     /// <summary>
     /// Marks IsBusy and keeps it set until the IPN bus reports a fully settled
     /// post-login state (Running or Stopped).
@@ -218,6 +222,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Settings.CanDriveShare = capMap?.ContainsKey("drive:share") == true;
         Settings.CanDriveAccess = capMap?.ContainsKey("drive:access") == true;
 
+        // Extract user role capabilities
+        ApplyRolesFromCapMap(capMap);
+
         _latestStatus = status;
         ExitNodePicker.MarkDirty();
 
@@ -238,6 +245,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (value && _latestStatus is not null)
             ExitNodePicker.BuildNodes(_latestStatus);
+    }
+
+    partial void OnShowSettingsChanged(bool value)
+    {
     }
 
     partial void OnShowPeerDetailChanged(bool value)
@@ -448,6 +459,64 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _wireGuardOnlyIds = ids;
     }
 
+    // Roles ordered from highest to lowest priority.
+    // A higher role suppresses all roles it implies (listed after it).
+    private static readonly (string Segment, string Display, string[] Suppresses)[] RolePriority =
+    [
+        ("is-owner",         "Owner",         ["is-admin", "is-network-admin"]),
+        ("is-admin",         "Admin",         ["is-network-admin"]),
+        ("is-network-admin", "Network Admin", []),
+        ("is-billing-admin", "Billing Admin", []),
+        ("is-it-admin",      "IT Admin",      []),
+        ("is-auditor",       "Auditor",       []),
+        ("is-member",        "Member",        []),
+    ];
+
+    private void ApplyRolesFromCapMap(Dictionary<string, List<string>>? capMap)
+    {
+        UserRoles.Clear();
+        if (capMap is null)
+        {
+            HasUserRoles = false;
+            return;
+        }
+
+        // Collect all is-* segments present
+        var presentSegments = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var key in capMap.Keys)
+        {
+            var seg = key.Split('/')[^1];
+            if (seg.StartsWith("is-", StringComparison.OrdinalIgnoreCase))
+                presentSegments.Add(seg);
+        }
+
+        // Walk priority list; skip roles suppressed by a higher one already added
+        var suppressed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (segment, display, suppresses) in RolePriority)
+        {
+            if (suppressed.Contains(segment)) continue;
+            if (!presentSegments.Remove(segment)) continue;
+            UserRoles.Add(display);
+            foreach (var s in suppresses) suppressed.Add(s);
+        }
+
+        // Any unknown is-* roles not in the priority table
+        foreach (var seg in presentSegments)
+        {
+            if (suppressed.Contains(seg)) continue;
+            UserRoles.Add(FormatRoleSegment(seg));
+        }
+
+        HasUserRoles = UserRoles.Count > 0;
+    }
+
+    private static string FormatRoleSegment(string segment)
+    {
+        var rolePart = segment.StartsWith("is-", StringComparison.OrdinalIgnoreCase) ? segment[3..] : segment;
+        return string.Join(' ', rolePart.Split('-')
+            .Select(w => w.Length > 0 ? char.ToUpperInvariant(w[0]) + w[1..] : w));
+    }
+
     public void Dispose()
     {
         _busCts?.Cancel();
@@ -520,7 +589,7 @@ public class PeerItem
         _ => "\uE703"
     };
 
-    private static string FormatBytes(long bytes) => bytes switch
+    internal static string FormatBytes(long bytes) => bytes switch
     {
         < 1024 => $"{bytes} B",
         < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
