@@ -301,7 +301,8 @@
                         <Run Text="{Binding Peer.Created, Mode=OneWay, StringFormat='{}{0:yyyy-MM-dd HH:mm}'}"/>
                     </TextBlock>
                 </DockPanel>
-                <DockPanel Margin="0,2">
+                <DockPanel Margin="0,2"
+                           Visibility="{Binding Peer.IsOnline, Converter={StaticResource BoolToVis}, ConverterParameter=Invert}">
                     <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
                                FontFamily="{DynamicResource BodyFont}" FontSize="12">
                         <Run Text="Last Seen" Foreground="{DynamicResource TextTertiaryBrush}"/>
