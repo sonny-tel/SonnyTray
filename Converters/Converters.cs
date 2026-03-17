@@ -65,6 +65,7 @@ public class BackendStateToTextConverter : IValueConverter
             "NeedsLogin" => "Needs Login",
             "NeedsMachineAuth" => "Pending Auth",
             "NoState" => "Logged Out",
+            "InUseOtherUser" => "In Use by Other User",
             _ => state
         } : "Unknown";
     }

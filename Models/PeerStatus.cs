@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SonnyTray.Models;
@@ -71,5 +72,5 @@ public sealed class PeerStatus
     public bool InEngine { get; set; }
 
     [JsonPropertyName("CapMap")]
-    public Dictionary<string, List<string>>? CapMap { get; set; }
+    public Dictionary<string, JsonElement?>? CapMap { get; set; }
 }

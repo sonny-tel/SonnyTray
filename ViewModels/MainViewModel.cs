@@ -122,12 +122,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IsConnected = status.BackendState == "Running";
         NeedsLogin = status.BackendState == "NeedsLogin";
 
-        // Prefer the display name from Self.CapMap, fall back to CurrentTailnet.Name
-        TailnetName = status.Self?.CapMap is { } cap
-            && cap.TryGetValue("tailnet-display-name", out var names)
-            && names is [var displayName, ..]
-                ? displayName
-                : status.CurrentTailnet?.Name ?? "";
+        string? capDisplayName = null;
+        if (status.Self?.CapMap is { } cap
+            && cap.TryGetValue("tailnet-display-name", out var nameElement)
+            && nameElement is { } ne
+            && ne.ValueKind == JsonValueKind.Array
+            && ne.GetArrayLength() > 0
+            && ne[0].ValueKind == JsonValueKind.String)
+        {
+            capDisplayName = ne[0].GetString();
+        }
+        TailnetName = capDisplayName ?? status.CurrentTailnet?.Name ?? "";
 
         if (status.Self is { } self)
         {
@@ -472,7 +477,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ("is-member",        "Member",        []),
     ];
 
-    private void ApplyRolesFromCapMap(Dictionary<string, List<string>>? capMap)
+    private void ApplyRolesFromCapMap(Dictionary<string, JsonElement?>? capMap)
     {
         UserRoles.Clear();
         if (capMap is null)
