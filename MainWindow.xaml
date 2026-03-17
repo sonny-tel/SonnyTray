@@ -784,6 +784,68 @@
                                        VerticalAlignment="Center"/>
                         </DockPanel>
 
+                        <!-- Peer visibility section -->
+                        <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="4,6"/>
+                        <TextBlock Text="Peer Visibility" Margin="8,2,0,2"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   FontFamily="{DynamicResource BodyFont}" FontSize="11"
+                                   FontWeight="SemiBold"/>
+
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.HideMyDevices}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Hide my devices"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.HideOtherDevices}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Hide other users' devices"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.HideTaggedDevices}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Hide tagged devices"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.HideFunnelDevices}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Hide funnel devices"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <DockPanel Margin="8,4">
+                            <local:FluentToggleButton DockPanel.Dock="Right"
+                                          Style="{DynamicResource FluentToggle}"
+                                          IsChecked="{Binding Settings.HideAppConnectors}"
+                                          VerticalAlignment="Center"/>
+                            <TextBlock Text="Hide app connectors"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontFamily="{DynamicResource BodyFont}" FontSize="12"
+                                       VerticalAlignment="Center"/>
+                        </DockPanel>
+
                         <!-- TailDrive section -->
                         <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="4,6"/>
                         <StackPanel>

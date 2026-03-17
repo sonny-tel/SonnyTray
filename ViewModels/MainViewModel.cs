@@ -86,6 +86,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         ProfileManager = new ProfileManagerViewModel(client, this);
         Settings = new SettingsViewModel(client);
         PeerDetail = new PeerDetailViewModel(client);
+        Settings.HideDevicesChanged += () => { if (_latestStatus is not null) ApplyStatus(_latestStatus); };
     }
 
     public async Task InitializeAsync()
@@ -164,13 +165,28 @@ public partial class MainViewModel : ObservableObject, IDisposable
             LoginUserName = ProfileManager.CurrentProfile?.UserProfile?.LoginName ?? "";
         }
 
-        // Build peer list hide exit node infrastructure (peers with Location data)
+        // Build peer list; hide exit node infrastructure (peers with Location data or mullvad DNS)
+        // and apply device visibility settings (matching tailscale-android MDM hiding)
+        var selfUserId = status.Self?.UserID ?? 0;
         Peers.Clear();
         if (status.Peer is not null)
         {
             foreach (var (_, peer) in status.Peer)
             {
                 if (peer.Location is not null)
+                    continue;
+                if (peer.DNSName.EndsWith(".mullvad.ts.net.", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (Settings.HideMyDevices && peer.UserID == selfUserId)
+                    continue;
+                if (Settings.HideOtherDevices && peer.UserID != selfUserId)
+                    continue;
+                if (Settings.HideTaggedDevices && peer.Tags is { Count: > 0 })
+                    continue;
+                if (Settings.HideFunnelDevices && peer.CapMap?.ContainsKey("funnel") == true)
+                    continue;
+                if (Settings.HideAppConnectors && peer.CapMap?.ContainsKey("tailscale.com/app-connectors") == true)
                     continue;
 
                 Peers.Add(new PeerItem

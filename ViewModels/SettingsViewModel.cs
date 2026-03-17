@@ -15,6 +15,7 @@ public partial class SettingsViewModel : ObservableObject
 
     private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
     private const string StartupValueName = "SonnyTray";
+    private const string SonnyTrayRegistryKey = @"SOFTWARE\SonnyTray";
 
     [ObservableProperty] private bool _allowIncomingConnections;
     [ObservableProperty] private bool _useTailscaleDns;
@@ -25,6 +26,13 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private bool _advertiseExitNode;
     [ObservableProperty] private bool _allowLANAccess;
     private List<string> _otherRoutes = [];
+
+    // Peer visibility
+    [ObservableProperty] private bool _hideMyDevices;
+    [ObservableProperty] private bool _hideOtherDevices;
+    [ObservableProperty] private bool _hideTaggedDevices;
+    [ObservableProperty] private bool _hideFunnelDevices;
+    [ObservableProperty] private bool _hideAppConnectors;
 
     // TailDrive
     [ObservableProperty] private bool _showAddShare;
@@ -65,6 +73,7 @@ public partial class SettingsViewModel : ObservableObject
             RunUnattended = prefs.ForceDaemon;
             RunAtStartup = IsStartupEnabled();
             AllowLANAccess = prefs.ExitNodeAllowLANAccess;
+            LoadHideDeviceSettings();
 
             var routes = prefs.AdvertiseRoutes ?? [];
             AdvertiseExitNode = routes.Contains("0.0.0.0/0") && routes.Contains("::/0");
@@ -121,6 +130,43 @@ public partial class SettingsViewModel : ObservableObject
         SetStartupEnabled(value);
     }
 
+    partial void OnHideMyDevicesChanged(bool value)
+    {
+        if (_loading) return;
+        SaveHideDeviceSetting(nameof(HideMyDevices), value);
+        HideDevicesChanged?.Invoke();
+    }
+
+    partial void OnHideOtherDevicesChanged(bool value)
+    {
+        if (_loading) return;
+        SaveHideDeviceSetting(nameof(HideOtherDevices), value);
+        HideDevicesChanged?.Invoke();
+    }
+
+    partial void OnHideTaggedDevicesChanged(bool value)
+    {
+        if (_loading) return;
+        SaveHideDeviceSetting(nameof(HideTaggedDevices), value);
+        HideDevicesChanged?.Invoke();
+    }
+
+    partial void OnHideFunnelDevicesChanged(bool value)
+    {
+        if (_loading) return;
+        SaveHideDeviceSetting(nameof(HideFunnelDevices), value);
+        HideDevicesChanged?.Invoke();
+    }
+
+    partial void OnHideAppConnectorsChanged(bool value)
+    {
+        if (_loading) return;
+        SaveHideDeviceSetting(nameof(HideAppConnectors), value);
+        HideDevicesChanged?.Invoke();
+    }
+
+    public event Action? HideDevicesChanged;
+
     partial void OnAdvertiseExitNodeChanged(bool value)
     {
         if (_loading) return;
@@ -147,6 +193,34 @@ public partial class SettingsViewModel : ObservableObject
             return key?.GetValue(StartupValueName) is not null;
         }
         catch { return false; }
+    }
+
+    private void LoadHideDeviceSettings()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(SonnyTrayRegistryKey, false);
+            if (key is null) return;
+            HideMyDevices = (key.GetValue(nameof(HideMyDevices)) as int?) == 1;
+            HideOtherDevices = (key.GetValue(nameof(HideOtherDevices)) as int?) == 1;
+            HideTaggedDevices = (key.GetValue(nameof(HideTaggedDevices)) as int?) == 1;
+            HideFunnelDevices = (key.GetValue(nameof(HideFunnelDevices)) as int?) == 1;
+            HideAppConnectors = (key.GetValue(nameof(HideAppConnectors)) as int?) == 1;
+        }
+        catch { }
+    }
+
+    private static void SaveHideDeviceSetting(string name, bool value)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(SonnyTrayRegistryKey);
+            key.SetValue(name, value ? 1 : 0, RegistryValueKind.DWord);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Failed to save hide setting: {ex.Message}");
+        }
     }
 
     private static void SetStartupEnabled(bool enabled)
