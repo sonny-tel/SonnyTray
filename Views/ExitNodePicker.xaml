@@ -165,7 +165,7 @@
                                                      Fill="{Binding IsOnline, Converter={StaticResource OnlineBrush}}"
                                                      Margin="0,0,10,0"
                                                      VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding HostName}"
+                                            <TextBlock Text="{Binding DisplayName}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                                        FontFamily="{DynamicResource BodyFont}"
                                                        FontSize="13"

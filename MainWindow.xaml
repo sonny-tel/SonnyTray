@@ -417,7 +417,7 @@
                                 <TextBlock Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontFamily="{DynamicResource BodyFont}"
                                            FontSize="12"
-                                           Text="{Binding SelfHostName}"/>
+                                           Text="{Binding SelfDeviceName}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                     <TextBlock Text="{Binding SelfIP}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"

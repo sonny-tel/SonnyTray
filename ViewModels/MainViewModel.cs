@@ -24,6 +24,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     [ObservableProperty] private string _backendState = "Unknown";
     [ObservableProperty] private string _selfHostName = "";
+    [ObservableProperty] private string _selfDeviceName = "";
     [ObservableProperty] private string _selfIP = "";
     [ObservableProperty] private string _selfIPv6 = "";
     [ObservableProperty] private string _selfDNSName = "";
@@ -138,6 +139,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (status.Self is { } self)
         {
             SelfHostName = self.HostName;
+            SelfDeviceName = self.DeviceName;
             SelfIP = self.TailscaleIPs?.FirstOrDefault() ?? "";
             SelfIPv6 = self.TailscaleIPs?.Skip(1).FirstOrDefault() ?? "";
             SelfDNSName = self.DNSName.TrimEnd('.');
@@ -247,7 +249,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     OnPropertyChanged(nameof(HasExitNodeFlag));
                     CurrentExitNodeName = peer.Location is not null
                         ? $"{peer.Location.City}, {peer.Location.Country}"
-                        : peer.HostName;
+                        : peer.DeviceName;
                     break;
                 }
             }
@@ -594,24 +596,14 @@ public class PeerItem
     public string TxDisplay => FormatBytes(TxBytes);
 
     /// <summary>
-    /// Friendly display name: if HostName is useless (e.g. "localhost"), derive from DNSName.
-    /// Normalizes names like "Google Pixel 9" to "google-pixel-9".
+    /// Device name as set in the admin console (first MagicDNS label); falls back to the
+    /// OS hostname, normalized like "Google Pixel 9" → "google-pixel-9".
     /// </summary>
     public string DisplayName
     {
         get
         {
-            var raw = HostName;
-            if (string.IsNullOrEmpty(raw)
-                || raw.Equals("localhost", StringComparison.OrdinalIgnoreCase))
-            {
-                // Take the first label from the FQDN: "google-pixel-9.tailnet.ts.net." → "google-pixel-9"
-                raw = DNSName.Split('.').FirstOrDefault() ?? HostName;
-            }
-
-            if (string.IsNullOrEmpty(raw)) return HostName;
-
-            // Normalize: lowercase, replace spaces with hyphens
+            var raw = PeerStatus.GetDeviceName(DNSName, HostName);
             return raw.Trim().Replace(' ', '-').ToLowerInvariant();
         }
     }

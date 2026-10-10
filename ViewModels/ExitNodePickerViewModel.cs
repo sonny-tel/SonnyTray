@@ -156,7 +156,7 @@ public partial class ExitNodePickerViewModel : ObservableObject
         }
 
         // Sort tailnet nodes
-        var sortedTailnet = tailnetNodes.OrderByDescending(n => n.IsOnline).ThenBy(n => n.HostName).ToList();
+        var sortedTailnet = tailnetNodes.OrderByDescending(n => n.IsOnline).ThenBy(n => n.DisplayName).ToList();
 
         // Build country groups for location-based exit nodes
         var countryGroups = new List<CountryGroup>();
@@ -298,15 +298,19 @@ public partial class ExitNodeItem : ObservableObject
     public string CityCode { get; set; } = "";
     public int Priority { get; set; }
 
+    /// <summary>Admin-console device name (first MagicDNS label), falling back to HostName.</summary>
+    public string DisplayName => PeerStatus.GetDeviceName(DNSName, HostName);
+
     public string Label => !string.IsNullOrEmpty(City)
         ? $"{City}"
-        : HostName;
+        : DisplayName;
 
     public bool MatchesSearch(string query)
     {
         if (string.IsNullOrWhiteSpace(query)) return true;
         return Country.Contains(query, StringComparison.OrdinalIgnoreCase)
             || City.Contains(query, StringComparison.OrdinalIgnoreCase)
+            || DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase)
             || HostName.Contains(query, StringComparison.OrdinalIgnoreCase)
             || CountryCode.Contains(query, StringComparison.OrdinalIgnoreCase);
     }

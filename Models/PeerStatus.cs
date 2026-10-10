@@ -73,4 +73,19 @@ public sealed class PeerStatus
 
     [JsonPropertyName("CapMap")]
     public Dictionary<string, JsonElement?>? CapMap { get; set; }
+
+    /// <summary>
+    /// Device name as set in the admin console: the first label of the MagicDNS name
+    /// ("my-laptop.tailnet.ts.net." → "my-laptop"). HostName is the OS hostname reported by
+    /// the node and does not reflect renames, so it is only a fallback.
+    /// </summary>
+    [JsonIgnore]
+    public string DeviceName => GetDeviceName(DNSName, HostName);
+
+    public static string GetDeviceName(string dnsName, string hostName)
+    {
+        var dot = dnsName.IndexOf('.');
+        var label = dot >= 0 ? dnsName[..dot] : dnsName;
+        return label.Length > 0 ? label : hostName;
+    }
 }
